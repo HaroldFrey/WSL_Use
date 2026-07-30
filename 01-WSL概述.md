@@ -300,18 +300,80 @@ export VIVADO_HOME="/mnt/d/Xilinx/Vivado/2024.1"
 
 ### 8.1 WSLg：Linux GUI 应用直接跑在 Windows 桌面
 
-WSL 2 内置了 **WSLg（WSL GUI）**，运行 Linux GUI 应用就像 Windows 原生应用一样：
+WSL 2 内置了 **WSLg（WSL GUI）**，这是微软官方支持的图形方案，无需额外配置。
 
-```bash
-# 安装 GTK/Qt 应用，直接出现在 Windows 开始菜单
-sudo apt install gimp           # Linux 版的 GIMP 图像编辑器
-sudo apt install nautilus       # Linux 的文件管理器
+#### 工作原理
 
-# 对 FPGA 工程师最实用的：
-sudo apt install gtkwave        # 开源波形查看器——直接查看 VCD/FST/FSDB 波形
+```text
+┌─────────────────────────────────────────────────┐
+│              Windows 桌面                         │
+│  ┌──────────┐  ┌───────────┐  ┌───────────┐     │
+│  │ gedit    │  │ GTKWave   │  │ nautilus  │     │
+│  │ (编辑器) │  │ (波形查看) │  │ (文件管理) │     │
+│  └────┬─────┘  └─────┬─────┘  └─────┬─────┘     │
+│       │              │              │            │
+│  ┌────┴──────────────┴──────────────┴────┐       │
+│  │    WSLg (Wayland + X11 + PulseAudio)  │       │
+│  │    RDP 后端，窗口直接渲染到 Windows     │       │
+│  └──────────────────┬────────────────────┘       │
+└─────────────────────┼───────────────────────────┘
+                      │
+              ┌───────┴────────┐
+              │   WSL 2 内核    │
+              │   Ubuntu        │
+              │   GUI 应用进程   │
+              └────────────────┘
 ```
 
-效果：窗口就像 Windows 原生程序一样——可以 Alt+Tab 切换、最小化、任务栏显示。
+微软用 RDP 协议在后台打通了 Linux 图形栈和 Windows 桌面，每个 Linux GUI 应用作为一个独立窗口出现。
+
+#### 不是什么
+
+| 误解 | 事实 |
+|------|------|
+| "WSL 有桌面" | ❌ 没有 GNOME/KDE 桌面，不能登录 Linux 桌面环境 |
+| "需要装 X Server" | ❌ WSLg 自带，不用折腾 `VcXsrv`、`Xming` 等第三方方案 |
+| "所有 Linux 应用都能 GUI" | ⚠️ 绝大多数 GTK/Qt 应用可以，少数需要特殊 GPU 配置的（如 Blender 渲染）不行 |
+
+#### 怎么用
+
+```bash
+# 安装任何 Linux GUI 应用，直接启动即可
+sudo apt install gedit          # GNOME 文本编辑器
+gedit &                         # 窗口出现在 Windows 桌面上
+
+sudo apt install gimp           # Linux 版 GIMP 图像编辑器
+gimp &
+
+sudo apt install nautilus       # Linux 文件管理器
+nautilus ~/ &
+
+# 安装的 GUI 应用会自动出现在 Windows 开始菜单的 Ubuntu 文件夹中
+```
+
+#### 对 FPGA 工程师最有价值的 GUI 应用
+
+```bash
+# GTKWave —— 开源波形查看器，查看 VCD/FST/LXT/FSDB
+sudo apt install gtkwave
+gtkwave dump.vcd &
+
+# 或者用 gtkwave 的命令行工具打开波形
+gtkwave simulation_result.fst &
+gtkwave --save=my_view.gtkw my_design.vcd &
+
+# 还可以装轻量级编辑器作为 VS Code 的补充
+sudo apt install geany          # 轻量 IDE
+```
+
+#### 效果
+
+- 窗口可以 **Alt+Tab** 切换、最小化、拖到另一个显示器
+- 任务栏显示 Linux 应用图标（小企鹅角标）
+- 剪贴板与 Windows 互通
+- **不需要** 再折腾 X Server、DISPLAY 环境变量
+
+> 💡 WSLg 对 FPGA 工程师来说，最实在的就是 **GTKWave 直接看波形**。不用在 Windows 上找波形查看工具的替代品，也不用装虚拟机。
 
 ### 8.2 Docker 免费用（无需 Docker Desktop）
 

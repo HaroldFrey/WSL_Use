@@ -16,9 +16,10 @@
 - [5. 终端选择与美化](#5-终端选择与美化)
 - [6. 包管理器与基础工具安装](#6-包管理器与基础工具安装)
 - [7. 配置 VS Code Remote-WSL](#7-配置-vs-code-remote-wsl)
-- [8. 文件存放策略](#8-文件存放策略)
-- [9. 常见问题排查](#9-常见问题排查)
-- [10. 安装后自检清单](#10-安装后自检清单)
+- [8. 验证 WSLg 图形功能](#8-验证-wslg-图形功能)
+- [9. 文件存放策略](#9-文件存放策略)
+- [10. 常见问题排查](#10-常见问题排查)
+- [11. 安装后自检清单](#11-安装后自检清单)
 
 ---
 
@@ -331,7 +332,65 @@ code .
 
 ---
 
-## 8. 文件存放策略
+## 8. 验证 WSLg 图形功能
+
+WSLg 是 WSL 2 的内置图形支持。验证它工作正常是环境搭建的重要一步。
+
+### 8.1 快速测试：装一个小 GUI 验证
+
+```bash
+# 安装一个轻量 GUI 编辑器
+sudo apt install gedit -y
+
+# 启动它（注意末尾的 & 表示后台运行）
+gedit &
+
+# 如果 gedit 窗口出现在 Windows 桌面上 → WSLg 正常 ✅
+```
+
+### 8.2 安装 GTKWave（FPGA 波形查看器）
+
+这是你在 WSL 中最重要的 GUI 工具之一：
+
+```bash
+# 安装
+sudo apt install gtkwave -y
+
+# 验证
+gtkwave --version
+# 应该显示 GTKWave 版本号
+
+# 启动（即使没有波形文件也能看到界面）
+gtkwave &
+# GTKWave 主窗口出现在 Windows 桌面上
+```
+
+### 8.3 WSLg 不工作的排查
+
+| 问题 | 可能原因 | 解决 |
+|------|----------|------|
+| `gedit &` 无窗口 | WSLg 未正确启动 | `wsl --shutdown` 然后重新打开 WSL |
+| 窗口无法打开 | 显卡驱动问题 | 更新 Windows 显卡驱动 |
+| 中文乱码 | 缺少中文字体 | `sudo apt install fonts-noto-cjk -y` |
+| 应用启动报 `cannot open display` | DISPLAY 变量未设置（不应发生） | 检查 `echo $DISPLAY`，应为 `:0` |
+
+> 💡 WSLg 自动设置 `DISPLAY` 和 `WAYLAND_DISPLAY` 环境变量，你不需要手动配置任何东西。
+
+### 8.4 安装中文字体（推荐）
+
+WSL 默认不含中文字体，GUI 应用可能显示方块：
+
+```bash
+# 安装 Noto 中文字体（Google 出品，覆盖简繁日韩）
+sudo apt install fonts-noto-cjk -y
+
+# 刷新字体缓存
+fc-cache -fv
+```
+
+---
+
+## 9. 文件存放策略
 
 ```
 D:\Stduy\WSL_Use\              ← Windows 端：存放文档
@@ -359,7 +418,7 @@ cd ~/docs/WSL_Use
 
 ---
 
-## 9. 常见问题排查
+## 10. 常见问题排查
 
 ### 9.1 `wsl: command not found`
 
@@ -428,7 +487,7 @@ wsl --install
 
 ---
 
-## 10. 安装后自检清单
+## 11. 安装后自检清单
 
 一条一条过，确保环境就绪：
 
