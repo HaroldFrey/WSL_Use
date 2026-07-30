@@ -12,8 +12,9 @@
 - [2. WSL 1 vs WSL 2](#2-wsl-1-vs-wsl-2)
 - [3. WSL 能做什么](#3-wsl-能做什么)
 - [4. WSL 与 VS Code 配合](#4-wsl-与-vs-code-配合)
-- [5. 对 FPGA 工程师的意义](#5-对-fpga-工程师的意义)
-- [6. 常见 Linux 发行版选择](#6-常见-linux-发行版选择)
+- [5. Windows 与 WSL 的通信与联动](#5-windows-与-wsl-的通信与联动)
+- [6. 对 FPGA 工程师的意义](#6-对-fpga-工程师的意义)
+- [7. 常见 Linux 发行版选择](#7-常见-linux-发行版选择)
 
 ---
 
@@ -103,7 +104,159 @@
 
 ---
 
-## 5. 对 FPGA 工程师的意义
+## 5. Windows 与 WSL 的通信与联动
+
+Windows 和 WSL 不是两个隔离的世界——它们可以**无缝通信、互相调用**。这是 WSL 相比虚拟机或双系统最大的优势之一。
+
+### 5.1 文件系统互通
+
+```
+┌──────────────────────────────────────────────────┐
+│                Windows 文件系统                     │
+│  C:\  D:\  E:\  ...                              │
+│          ↕                                       │
+│  /mnt/c/  /mnt/d/  /mnt/e/  (在 WSL 中可访问)      │
+├──────────────────────────────────────────────────┤
+│                WSL 文件系统 (ext4)                  │
+│  /home/<user>/  /usr/  /etc/  ...               │
+│          ↕                                       │
+│  \\wsl$\<发行版>\  \\wsl.localhost\<发行版>\       │
+│  (在 Windows 中可访问)                             │
+└──────────────────────────────────────────────────┘
+```
+
+#### 从 WSL 访问 Windows 文件
+
+```bash
+# Windows 的磁盘自动挂载到 /mnt/ 下
+ls /mnt/c/Users/          # 浏览 C 盘用户目录
+cp /mnt/d/Stduy/data.txt ~/  # 从 D 盘复制文件到 WSL 家目录
+```
+
+#### 从 Windows 访问 WSL 文件
+
+```powershell
+# 方法 1：资源管理器地址栏直接输入
+\\wsl$\Ubuntu\home\<username>
+
+# 方法 2：从 WSL 终端直接打开当前目录的 Windows 资源管理器
+explorer.exe .
+
+# 方法 3：用 wsl 命令
+wsl ls /home/<username>
+```
+
+#### 性能提示
+
+| 操作方向 | 性能 | 建议 |
+|----------|------|------|
+| WSL 读写自己的文件（`/home/`） | ⚡ 极快 | 项目代码放这里 |
+| WSL 读写 Windows 文件（`/mnt/c/`） | 🐢 慢（尤其 WSL 2） | 仅用于临时跨系统传输 |
+| Windows 读写 WSL 文件（`\\wsl$\`） | 🐢 慢 | 仅用于偶尔查看/编辑 |
+
+> **最佳实践**：把项目文件放在 WSL 的 `/home/<user>/` 下，日常开发在 WSL 中进行。需要跨系统共享的数据放在 `/mnt/d/` 等 Windows 分区。
+
+### 5.2 程序互相调用
+
+#### 从 WSL 调用 Windows 程序
+
+Windows 的可执行文件在 WSL 的 `$PATH` 中**自动可见**：
+
+```bash
+# 直接在 WSL 终端里运行 Windows 程序
+code .                    # 用 VS Code 打开当前目录
+explorer.exe .            # 打开 Windows 资源管理器
+notepad.exe file.txt      # 用 Windows 记事本打开文件
+vivado &                  # 启动 Windows 上的 Vivado（后台运行）
+
+# Windows 程序能看到 WSL 的文件
+# 例如 code /home/user/myproject → VS Code 通过 Remote-WSL 打开
+```
+
+#### 从 Windows 调用 WSL 程序
+
+```powershell
+# 在 PowerShell 或 CMD 中
+wsl ls -la                          # 执行单条 Linux 命令
+wsl bash -c "find . -name '*.v'"   # 执行复合命令
+wsl python3 script.py               # 在 WSL 中运行 Python 脚本
+wsl make                            # 在 WSL 中运行 make
+
+# 管道也支持
+echo "hello" | wsl tr 'a-z' 'A-Z'   # 输出: HELLO
+dir | wsl grep "WSL"                # 用 WSL 的 grep 过滤 Windows 输出
+```
+
+### 5.3 网络通信
+
+WSL 2 使用 NAT 虚拟网络，但微软做了便利性设计：
+
+```
+Windows (宿主机)                    WSL 2 (虚拟机)
+  172.x.x.x  ──────── NAT ────────  172.y.y.y (独立 IP)
+       │                                  │
+       └─── localhost 转发 ←──────────────┘
+```
+
+| 通信方向 | 方式 | 说明 |
+|----------|------|------|
+| Windows → WSL 服务 | `localhost:端口` | 在 WSL 中启动的 Web 服务、数据库等，Windows 用 `localhost` 直接访问 |
+| WSL → Windows 服务 | `$(hostname).local:端口` 或宿主机 IP | WSL 访问 Windows 上运行的服务 |
+| 外部访问 WSL | 需配置端口转发 | WSL 2 默认 NAT，外部设备无法直接访问，需要特殊配置 |
+
+#### 实际例子
+
+```bash
+# 在 WSL 中启动一个 Web 服务
+python3 -m http.server 8080
+
+# 在 Windows 浏览器中打开 → 可以正常访问
+# http://localhost:8080
+```
+
+```bash
+# 在 WSL 中访问 Windows 上运行的 Vivado TCL 服务器
+# Vivado 在 Windows 的 3121 端口监听
+# 从 WSL 连接:
+telnet $(hostname).local 3121
+```
+
+### 5.4 剪贴板共享
+
+```bash
+# WSL → Windows 剪贴板
+echo "hello" | clip.exe          # 把文本放入 Windows 剪贴板
+
+# Windows 剪贴板 → WSL
+powershell.exe Get-Clipboard     # 读取 Windows 剪贴板内容
+```
+
+### 5.5 环境变量互通
+
+WSL 默认继承了一部分 Windows 环境变量，也可以单独设置：
+
+```bash
+# 查看继承的 Windows 环境变量
+echo $USERPROFILE           # C:\Users\<username>
+
+# 在 WSL 的 ~/.bashrc 中设置 WSL 专用变量
+export VIVADO_HOME="/mnt/d/Xilinx/Vivado/2024.1"
+```
+
+### 5.6 通信方式速查表
+
+| 需求 | 做法 | 命令示例 |
+|------|------|----------|
+| WSL 读 Windows 文件 | `/mnt/<盘符>/` | `cat /mnt/d/data.txt` |
+| Windows 读 WSL 文件 | `\\wsl$\` | 资源管理器输入路径 |
+| WSL 运行 Windows 程序 | 直接调用 `.exe` | `code .` |
+| Windows 运行 WSL 命令 | `wsl <cmd>` | `wsl make all` |
+| 浏览器访问 WSL 服务 | `localhost:端口` | `http://localhost:3000` |
+| 分享文本 | `clip.exe` / `Get-Clipboard` | `echo "hi" \| clip.exe` |
+
+---
+
+## 6. 对 FPGA 工程师的意义
 
 ### 你日常可能用到的场景
 
@@ -123,7 +276,7 @@
 
 ---
 
-## 6. 常见 Linux 发行版选择
+## 7. 常见 Linux 发行版选择
 
 在 Microsoft Store 中可以直接安装以下发行版：
 
