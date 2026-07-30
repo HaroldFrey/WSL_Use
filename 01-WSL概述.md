@@ -15,6 +15,7 @@
 - [5. Windows 与 WSL 的通信与联动](#5-windows-与-wsl-的通信与联动)
 - [6. 对 FPGA 工程师的意义](#6-对-fpga-工程师的意义)
 - [7. 常见 Linux 发行版选择](#7-常见-linux-发行版选择)
+- [8. WSL 的有趣应用与进阶玩法](#8-wsl-的有趣应用与进阶玩法)
 
 ---
 
@@ -290,6 +291,183 @@ export VIVADO_HOME="/mnt/d/Xilinx/Vivado/2024.1"
 ### 本项目选择
 
 > **Ubuntu（最新 LTS 版本）**——社区最大、问题最好查、软件包最丰富、与 Vivado TCL 环境的兼容性最好。
+
+---
+
+## 8. WSL 的有趣应用与进阶玩法
+
+除了基本的命令行和脚本开发，WSL 还有很多"用了就回不去"的玩法。以下按场景整理：
+
+### 8.1 WSLg：Linux GUI 应用直接跑在 Windows 桌面
+
+WSL 2 内置了 **WSLg（WSL GUI）**，运行 Linux GUI 应用就像 Windows 原生应用一样：
+
+```bash
+# 安装 GTK/Qt 应用，直接出现在 Windows 开始菜单
+sudo apt install gimp           # Linux 版的 GIMP 图像编辑器
+sudo apt install nautilus       # Linux 的文件管理器
+
+# 对 FPGA 工程师最实用的：
+sudo apt install gtkwave        # 开源波形查看器——直接查看 VCD/FST/FSDB 波形
+```
+
+效果：窗口就像 Windows 原生程序一样——可以 Alt+Tab 切换、最小化、任务栏显示。
+
+### 8.2 Docker 免费用（无需 Docker Desktop）
+
+Docker Desktop 对商业用户收费。但 WSL 2 里可以直接装原生 Docker，完全不依赖 Docker Desktop：
+
+```bash
+# 在 WSL 中直接安装 Docker Engine（开源免费）
+sudo apt install docker.io
+sudo service docker start
+
+# 跑各种容器
+docker run -it ubuntu bash
+docker run -p 5432:5432 postgres    # 本地数据库
+```
+
+这对在本地搭建 CI/CD 模拟环境、跑 Jenkins/GitLab Runner 等非常实用。
+
+### 8.3 开源 FPGA 工具链全家桶
+
+WSL 可以跑一整套开源 FPGA 工具：
+
+| 工具 | 用途 | WSL 中的体验 |
+|------|------|-------------|
+| **Verilator** | Verilog/SystemVerilog 仿真器 | ⚡ 完美运行，编译超快 |
+| **Icarus Verilog** | 轻量级 Verilog 仿真 | ✅ 安装即用 |
+| **GTKWave** | 波形查看 | 🖥️ 通过 WSLg 原生 GUI 显示 |
+| **Yosys** | RTL 综合 | ✅ 完美运行 |
+| **nextpnr** | 布局布线（FPGA 开源流程） | ✅ 支持 Lattice/iCE40/ECP5 |
+| **cocotb** | Python 验证框架 | ✅ 完美运行 |
+| **RISC-V GCC** | RISC-V 交叉编译器 | ✅ 安装即用 |
+| **Spike / QEMU** | RISC-V 模拟器 | ✅ 在 WSL 中编译运行 |
+
+```bash
+# 一键安装开源 FPGA 工具
+sudo apt install verilator gtkwave iverilog
+
+# 用 Verilator + GTKWave 做仿真
+verilator --cc my_design.v --trace
+make -C obj_dir -f Vmy_design.mk
+```
+
+### 8.4 多发行版同时运行
+
+可以同时安装多个 Linux 发行版，各自独立运行：
+
+```powershell
+# 在 Windows 终端中
+wsl --list --verbose
+  NAME            STATE           VERSION
+* Ubuntu-24.04    Running         2
+  Debian          Stopped         2
+
+# 进入指定发行版
+wsl -d Ubuntu-24.04
+wsl -d Debian
+```
+
+用途：在 Ubuntu 做日常开发，在 Debian 上测试兼容性，在 Alpine 上跑超轻量容器。
+
+### 8.5 Linux 定时任务（cron）
+
+用 Linux cron 替代 Windows 任务计划程序：
+
+```bash
+# 编辑 crontab
+crontab -e
+
+# 每天凌晨 2 点自动跑仿真回归测试
+0 2 * * * cd ~/fpga_project && make regression > /tmp/regression.log 2>&1
+
+# 每 5 分钟检查一次日志是否有新错误
+*/5 * * * * ~/scripts/check_errors.sh
+```
+
+### 8.6 file watcher 自动触发
+
+利用 Linux 的 `inotify` 机制监控文件变化，自动触发操作：
+
+```bash
+# 安装 inotify-tools
+sudo apt install inotify-tools
+
+# 监控 .v 文件变化 → 自动运行 lint
+while inotifywait -e modify ./src/*.v; do
+    verilator --lint-only ./src/*.v
+done
+```
+
+写 RTL 时，每次保存文件自动跑一遍语法检查，不用手动触发。
+
+### 8.7 CUDA / AI 训练
+
+如果你的机器有 NVIDIA 显卡，WSL 2 可以直接使用 GPU：
+
+```bash
+# 在 WSL 中安装 CUDA（不需要装 Windows 版驱动以外的任何东西）
+# NVIDIA 提供了专门的 WSL CUDA 包
+```
+
+对 FPGA 工程师来说，如果涉及 AI 加速器验证、DPU 开发，可以直接在 WSL 里跑 AI 推理作为参考模型。
+
+### 8.8 tmux：终端会话永不丢失
+
+```bash
+sudo apt install tmux
+
+# 启动 tmux 会话
+tmux new -s dev
+
+# 断线重连后恢复——所有窗口、程序都在
+tmux attach -t dev
+```
+
+### 8.9 SSH 跳板与隧道
+
+WSL 的 SSH 比 Windows 原生体验好得多：
+
+```bash
+# SSH 隧道：把远程服务器端口映射到本地
+ssh -L 5901:localhost:5901 user@fpga-server
+
+# SSH 跳板：通过一台机器访问另一台
+ssh -J gateway user@internal-fpga-server
+
+# ssh-agent：免密登录
+eval $(ssh-agent)
+ssh-add ~/.ssh/id_rsa
+```
+
+在 FPGA 开发中，经常需要远程访问 lab 里的服务器或板卡，WSL 的 SSH 工具链让这个流程非常顺畅。
+
+### 8.10 在 WSL 中创建文件共享 / 简易 NAS
+
+```bash
+# 用 Python 快速搭建临时文件共享
+python3 -m http.server 8000
+# 局域网内任何设备访问 http://<你的IP>:8000 就能下载文件
+
+# 用 rsync 同步文件到远程服务器
+rsync -avz ~/fpga_output/ user@server:/data/
+```
+
+### 8.11 小结：哪些值得你关注
+
+按 FPGA 工程师的优先级排列：
+
+| 优先级 | 玩法 | 一句话理由 |
+|--------|------|------------|
+| ⭐⭐⭐ | 开源 FPGA 工具链 | 免费仿真环境，在 WSL 里写 RTL、仿真、看波形 |
+| ⭐⭐⭐ | VS Code Remote-WSL | 无缝编辑体验，已经是你的工作流 |
+| ⭐⭐ | tmux | 终端永不丢失，长任务不怕断线 |
+| ⭐⭐ | SSH 工具链 | 连接远程 FPGA 服务器/板卡 |
+| ⭐⭐ | cron + 自动化 | 定时回归测试、自动检查 |
+| ⭐ | Docker | 搭建本地测试环境 |
+| ⭐ | WSLg / GTKWave | GUI 波形查看器直接跑 |
+| ⭐ | GPU / CUDA | 前提是有 NVIDIA 卡，涉及 AI 加速器时有用 |
 
 ---
 
