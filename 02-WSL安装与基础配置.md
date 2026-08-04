@@ -281,18 +281,24 @@ Ubuntu-24.04 config --default-user harold
 
 Windows Terminal 比传统控制台体验好得多：多标签、GPU 渲染、主题、分屏。
 
-在 Microsoft Store 搜索 **"Windows Terminal"** 安装。
+**Windows 11 已自带 Windows Terminal**（实测版本 1.24.x），无需安装。开始菜单搜索 **"终端"** 即可打开。在开始菜单打开的"Windows PowerShell"实际上也可能已经运行在 Windows Terminal 里（Win11 默认托管方式）。
 
 安装后，它会自动识别 WSL 发行版，你可以：
 - 在同一个窗口里开多个标签（PowerShell + WSL + CMD 混用）
 - Ctrl+Shift+D 分屏
 - Ctrl+Shift+T 新建标签
 
-### 5.2 配置默认终端为 WSL
+### 5.2 配置默认终端为 WSL（实测）
 
-打开 Windows Terminal → 设置 → 启动 → 默认配置文件 → 选择 **Ubuntu-24.04**。
+打开 Windows Terminal → `Ctrl + ,` 设置 → 左侧"启动" → "默认配置文件" → 选择 **Ubuntu**。
 
 之后每次打开终端，直接进入 WSL。
+
+> ⚠️ **实测教训**：
+> - **务必从"终端"打开**——开始菜单的"Windows PowerShell"快捷方式会绕过此设置（它是独立快捷方式，与默认配置文件无关）
+> - 下拉里可能出现**多个 Ubuntu 项**（商店版、WSL 动态版、已卸载发行版的"幽灵项"）——选名字为 **Ubuntu** 的那个；"幽灵项"（如已卸载的 "Ubuntu 24.04.1 LTS"）选错会启动失败
+> - 清理幽灵项：设置 → 配置文件 → 删除；或直接编辑 `settings.json`（`%LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json`）
+> - 设置生效后打开终端应显示 `harold@DESKTOP-XXX:~$`（直接在家目录）
 
 ### 5.3 可选：Oh My Zsh（Zsh shell）
 
@@ -315,13 +321,15 @@ chsh -s $(which zsh)
 
 ### 6.1 apt 加速（换国内源）
 
+> ⚠️ **实测修正**：Ubuntu 24.04 的 apt 源文件**不在** `/etc/apt/sources.list`（该文件在 24.04 里只是空壳），真正的源在 **`/etc/apt/sources.list.d/ubuntu.sources`**（Deb822 新格式）。
+
 ```bash
-# 备份原有源
-sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
+# 备份原有源（24.04 实际文件）
+sudo cp /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list.d/ubuntu.sources.bak
 
 # 编辑源列表（使用 Ubuntu 清华镜像）
-sudo sed -i 's|http://archive.ubuntu.com|https://mirrors.tuna.tsinghua.edu.cn|g' /etc/apt/sources.list
-sudo sed -i 's|http://security.ubuntu.com|https://mirrors.tuna.tsinghua.edu.cn|g' /etc/apt/sources.list
+sudo sed -i 's|http://archive.ubuntu.com|https://mirrors.tuna.tsinghua.edu.cn|g' /etc/apt/sources.list.d/ubuntu.sources
+sudo sed -i 's|http://security.ubuntu.com|https://mirrors.tuna.tsinghua.edu.cn|g' /etc/apt/sources.list.d/ubuntu.sources
 
 # 更新
 sudo apt update
