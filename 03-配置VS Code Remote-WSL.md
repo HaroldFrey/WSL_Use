@@ -62,7 +62,7 @@ Windows 桌面                        WSL 内部
 > ⚠️ **插件在 WSL 侧安装**：连接 WSL 后，之前装过的插件分两类——
 > - **UI 类**（主题、图标、中文界面）→ 自动通用，无需操作 ✅
 > - **工具类**（Python、Verilog 语法、GitLens 等）→ 需在 WSL 侧**单独安装**：扩展市场里会显示"在 WSL 中安装"（Install in WSL）按钮，点一下即可。因为 WSL 是独立环境，工具类插件要装进 WSL 里才能配合 Linux 工具链工作。
-> - Claude Code 的 skill → 不受影响，用户级配置（`~/.claude/skills/`），任何窗口都能用。
+> - Claude Code 的 skill → 注意：skills 是**按环境独立**的——Windows 窗口读 `C:\Users\<用户名>\.claude\skills`，WSL 窗口读 `/home/<用户名>/.claude/skills`。想让 WSL 也能用 Windows 的 skills，做软链接：`ln -s /mnt/c/Users/<用户名>/.claude/skills ~/.claude/skills`（settings.json 同理，否则 WSL 端会一直显示登录页）。详见 AI-Agent 仓库《搭建AI-Agent开发环境.md》§11。
 >
 > 🎯 **用按钮判断插件类型（实测）**：
 > - 有 **"Install in WSL: Ubuntu"** 按钮 → **工具类**，工作地点在 WSL，必须装进 WSL，点它 ✅
