@@ -15,6 +15,7 @@
 5. [验证](#5-验证)
 6. [使用方式](#6-使用方式)
 7. [常见问题](#7-常见问题)
+8. [在 WSL 中使用 Windows 的 Vivado（实测）](#8-在-wsl-中使用-windows-的-vivado实测)
 
 ---
 
@@ -140,6 +141,67 @@ ls ~/.claude/skills/             # 应列出全部 skill 目录
 ### Q4：skills 链接后，WSL 里能直接用 `/git-push` 等命令吗？
 
 能。skill 触发逻辑只认 skills 目录内容，链接过来后与 Windows 完全一致。
+
+---
+
+## 8. 在 WSL 中使用 Windows 的 Vivado（实测）
+
+### 8.1 能直接用吗？
+
+**可以**。WSL 能直接调用 Windows 上的程序（原理见 [01 §5.2](01-WSL概述.md#52-程序互相调用)）。Vivado 本体继续在 Windows 上跑（综合/实现/烧录），WSL 负责调用它、编写和管理 TCL 脚本。
+
+### 8.2 本机 Vivado 位置（实测）
+
+```
+D:\App_install_Lcoation\Vivado201704\Vivado\2017.4\bin\vivado.bat
+```
+
+### 8.3 三种调用方式
+
+**① 启动 Vivado GUI**（在 Ubuntu 终端）：
+
+```bash
+cmd.exe /c "D:\App_install_Lcoation\Vivado201704\Vivado\2017.4\bin\vivado.bat" &
+```
+
+**② 批处理模式**（跑 TCL 脚本，不开界面，适合自动化）：
+
+```bash
+cmd.exe /c "D:\App_install_Lcoation\Vivado201704\Vivado\2017.4\bin\vivado.bat" -mode batch -source run.tcl
+```
+
+**③ 查版本**（快速验证通路）：
+
+```bash
+cmd.exe /c "D:\App_install_Lcoation\Vivado201704\Vivado\2017.4\bin\vivado.bat" -version
+# 实测输出：Vivado v2017.4 (64-bit) ✅
+```
+
+> 💡 **嫌路径长？** 把 `D:\App_install_Lcoation\Vivado201704\Vivado\2017.4\bin` 加入 Windows 环境变量 PATH，之后在 WSL 里直接 `cmd.exe /c vivado -mode batch ...`。设置：Windows 搜索"编辑系统环境变量"→ 环境变量 → Path → 新增。
+
+### 8.4 路径转换（关键坑）
+
+WSL 的 `/mnt/d/...` 路径 Vivado **不认**，传参前要转成 Windows 格式：
+
+```bash
+wslpath -w /mnt/d/project/run.tcl     # 输出: D:\project\run.tcl
+```
+
+示例——把 WSL 里的 TCL 脚本交给 Vivado 执行：
+
+```bash
+TCL_WIN=$(wslpath -w /mnt/d/project/run.tcl)
+cmd.exe /c "D:\...\vivado.bat" -mode batch -source "$TCL_WIN"
+```
+
+### 8.5 注意事项
+
+| 事项 | 说明 |
+|------|------|
+| GUI 窗口 | 弹出的是 **Windows 原生窗口**（不是 WSLg 窗口），正常 |
+| TCL 脚本 | 在 WSL 里写/管理（能用 Linux 工具链），再传给 Windows Vivado 执行 |
+| 文件访问 | 跨系统（/mnt/d）访问比原生慢，大工程建议把工程目录放 Windows 侧 |
+| Vivado 版本 | 按你实际安装的路径/版本调整（本机是 2017.4） |
 
 ---
 
