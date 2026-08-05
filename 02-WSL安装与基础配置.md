@@ -3,7 +3,8 @@
 > **文档编号**：02  
 > **最后更新**：2026-07-30  
 > **前置条件**：已阅读 [01-WSL概述.md](01-WSL概述.md)  
-> **目的**：一步步完成 WSL 2 + Ubuntu 的安装与基础配置，配好 VS Code 开发环境
+> **目的**：一步步完成 WSL 2 + Ubuntu 的安装与基础配置
+> **开发工具**（VS Code Remote-WSL、GTKWave）见 [03-开发工具安装.md](03-开发工具安装.md)
 
 ---
 
@@ -15,11 +16,10 @@
 - [4. WSL 初次启动与基础配置](#4-wsl-初次启动与基础配置)
 - [5. 终端选择与美化](#5-终端选择与美化)
 - [6. 包管理器与基础工具安装](#6-包管理器与基础工具安装)
-- [7. 配置 VS Code Remote-WSL](#7-配置-vs-code-remote-wsl)
-- [8. 验证 WSLg 图形功能](#8-验证-wslg-图形功能)
-- [9. 文件存放策略](#9-文件存放策略)
-- [10. 常见问题排查](#10-常见问题排查)
-- [11. 安装后自检清单](#11-安装后自检清单)
+- [7. 验证 WSLg 图形功能](#7-验证-wslg-图形功能)
+- [8. 文件存放策略](#8-文件存放策略)
+- [9. 常见问题排查](#9-常见问题排查)
+- [10. 安装后自检清单](#10-安装后自检清单)
 
 ---
 
@@ -410,61 +410,11 @@ git config --list
 
 ---
 
-## 7. 配置 VS Code Remote-WSL
-
-这是本项目的核心工作方式。
-
-### 7.1 安装 VS Code 扩展
-
-在 Windows 的 VS Code 中安装扩展：**Remote - WSL**（发布者：Microsoft）。
-
-或按 `Ctrl+Shift+X` → 搜索 `Remote - WSL` → 安装。
-
-这个扩展会自动安装其他需要的 Remote 插件。
-
-### 7.2 从 WSL 终端打开 VS Code
-
-```bash
-# 在 WSL 中进入你的项目目录
-cd ~/projects/my_fpga_project
-
-# 用 VS Code 打开当前目录
-code .
-```
-
-首次运行 `code .` 时，VS Code 会自动：
-1. 安装 WSL 里的 VS Code Server
-2. 连接到 WSL
-3. 打开当前目录作为工作区
-
-### 7.3 如何确认你在 Remote 模式
-
-打开 VS Code 后，查看左下角：
-
-```
-┌──────────────────┐
-│ >< WSL: Ubuntu-24│  ← 看到这个绿色角标，说明已连入 WSL
-└──────────────────┘
-```
-
-终端（Ctrl+`）会直接打开 WSL 的 Bash。
-
-### 7.4 项目目录选择
-
-| 存放位置 | 路径 | 性能 | 推荐 |
-|----------|------|------|------|
-| WSL 内部 | `~/projects/my_project` | ⚡ 极快 | ✅ **推荐** |
-| Windows `/mnt/` | `/mnt/d/Stduy/my_project` | 🐢 慢 5-10 倍 | ❌ 不推荐 |
-
-> 开发代码放在 WSL 内（`/home/<user>/`）。仅在需要跨系统共享文件时才放在 `/mnt/` 下。
-
----
-
-## 8. 验证 WSLg 图形功能
+## 7. 验证 WSLg 图形功能
 
 WSLg 是 WSL 2 的内置图形支持。验证它工作正常是环境搭建的重要一步。
 
-### 8.1 快速测试：装一个小 GUI 验证
+### 7.1 快速测试：装一个小 GUI 验证
 
 ```bash
 # 安装一个轻量 GUI 编辑器
@@ -476,24 +426,7 @@ gedit &
 # 如果 gedit 窗口出现在 Windows 桌面上 → WSLg 正常 ✅
 ```
 
-### 8.2 安装 GTKWave（FPGA 波形查看器）
-
-这是你在 WSL 中最重要的 GUI 工具之一：
-
-```bash
-# 安装
-sudo apt install gtkwave -y
-
-# 验证
-gtkwave --version
-# 应该显示 GTKWave 版本号
-
-# 启动（即使没有波形文件也能看到界面）
-gtkwave &
-# GTKWave 主窗口出现在 Windows 桌面上
-```
-
-### 8.3 WSLg 不工作的排查
+### 7.2 WSLg 不工作的排查
 
 | 问题 | 可能原因 | 解决 |
 |------|----------|------|
@@ -504,7 +437,7 @@ gtkwave &
 
 > 💡 WSLg 自动设置 `DISPLAY` 和 `WAYLAND_DISPLAY` 环境变量，你不需要手动配置任何东西。
 
-### 8.4 安装中文字体（推荐）
+### 7.3 安装中文字体（推荐）
 
 WSL 默认不含中文字体，GUI 应用可能显示方块：
 
@@ -518,12 +451,13 @@ fc-cache -fv
 
 ---
 
-## 9. 文件存放策略
+## 8. 文件存放策略
 
 ```
 D:\FPGA_Self_Stduy\WSL_Use\    ← Windows 端：存放文档（本项目实际路径）
     ├── 01-WSL概述.md
     ├── 02-WSL安装与基础配置.md
+    ├── 03-开发工具安装.md        ← VS Code Remote-WSL + GTKWave
     └── ...
 
 ~/projects/                     ← WSL 端：存放代码和开发项目
@@ -534,7 +468,7 @@ D:\FPGA_Self_Stduy\WSL_Use\    ← Windows 端：存放文档（本项目实际�
 ~/shared/                       ← 可选：软链接到 Windows 某个目录
 ```
 
-### 9.1 你装的东西到底在哪儿（实测）
+### 8.1 你装的东西到底在哪儿（实测）
 
 Linux 终端里的一切操作都发生在**虚拟磁盘 ext4.vhdx** 内，本机迁移后它物理上位于 **D 盘**：
 
@@ -550,7 +484,7 @@ Linux 终端里的一切操作都发生在**虚拟磁盘 ext4.vhdx** 内，本�
 >
 > 📈 观察方式：Windows 资源管理器看 `D:\WSL\Ubuntu-24.04\ext4.vhdx` 的大小（随使用增长，稀疏分配，D 盘有足够空间）。
 
-### 9.2 从 WSL 快速访问 Windows 目录
+### 8.2 从 WSL 快速访问 Windows 目录
 
 ```bash
 # 创建符号链接，方便快速跳转
@@ -562,13 +496,13 @@ cd ~/docs/WSL_Use
 
 ---
 
-## 10. 常见问题排查
+## 9. 常见问题排查
 
-### 10.1 `wsl: command not found`
+### 9.1 `wsl: command not found`
 
 确保 PowerShell 以**管理员身份**运行，再执行安装命令。
 
-### 10.2 虚拟化错误
+### 9.2 虚拟化错误
 
 ```
 Please enable the Virtual Machine Platform Windows feature
@@ -581,11 +515,11 @@ dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all
 # 重启
 ```
 
-### 10.3 WSL 启动失败："未安装内核组件"
+### 9.3 WSL 启动失败："未安装内核组件"
 
 下载安装 WSL 2 内核更新包：https://aka.ms/wsl2kernel
 
-### 10.4 `localhost` 转发不工作
+### 9.4 `localhost` 转发不工作
 
 WSL 2 使用动态 IP，但 localhost 转发应该是自动的。如果不工作：
 
@@ -596,7 +530,7 @@ netsh winsock reset
 # 重启电脑
 ```
 
-### 10.5 磁盘空间问题
+### 9.5 磁盘空间问题
 
 WSL 2 的虚拟磁盘（`.vhdx` 文件）只增不减。如果占用过大：
 
@@ -615,7 +549,7 @@ diskpart
   compact vdisk
 ```
 
-### 10.6 网络问题（wsl --install 下载失败）
+### 9.6 网络问题（wsl --install 下载失败）
 
 如果 `wsl --install` 在下载时卡住或失败：
 
@@ -632,13 +566,13 @@ wsl --install
 # 从 Microsoft Store 直接搜索安装 Ubuntu
 ```
 
-### 10.7 `wsl --list --online` 报 `WSL/WININET_E_CANNOT_CONNECT`
+### 9.7 `wsl --list --online` 报 `WSL/WININET_E_CANNOT_CONNECT`
 
 `wsl --list --online` 需要访问 GitHub 上的发行版清单（`raw.githubusercontent.com/microsoft/WSL/...`），国内网络经常连不上。这是**网络问题**，不是配置错误：
 - 稍后重试（网络波动时有时能通）
 - 或绕过它：改用商店安装（[3.1](#31-图形界面安装推荐)），或用命令行安装卡住时参考 [3.2](#32-命令行安装) 的实测教训
 
-### 10.8 卸载应用后数据残留（实测 1.3G 没删掉）
+### 9.8 卸载应用后数据残留（实测 1.3G 没删掉）
 
 在商店/设置里卸载 Ubuntu 应用，**不会**自动注销 WSL 注册表、也**不会**删除虚拟磁盘数据。彻底删除必须执行：
 
@@ -650,7 +584,7 @@ wsl --unregister Ubuntu
 
 ---
 
-## 11. 安装后自检清单
+## 10. 安装后自检清单
 
 一条一条过，确保环境就绪：
 
@@ -664,8 +598,8 @@ wsl --unregister Ubuntu
 | 6 | git 可用 | `git --version` | 显示版本号 |
 | 7 | Python 可用 | `python3 --version` | 显示版本号 |
 | 8 | TCL 可用 | `tclsh <<< "puts hello"` | 输出 `hello` |
-| 9 | code 命令 | `code --version` | 显示版本号 |
-| 10 | VS Code Remote | `code .` | VS Code 打开，左下角显示 `WSL: Ubuntu-24` |
+| 9 | WSLg 图形 | `gedit &` | 窗口出现在 Windows 桌面 |
+| 10 | VS Code Remote + GTKWave | 见 [03-开发工具安装.md](03-开发工具安装.md) | `code .` 打开后左下角显示 `WSL: Ubuntu-24` |
 | 11 | Windows 文件可见 | `ls /mnt/c/` | 列出 C 盘目录 |
 | 12 | Windows → WSL | 资源管理器输入 `\\wsl$\` | 看到 Ubuntu 目录树 |
 
