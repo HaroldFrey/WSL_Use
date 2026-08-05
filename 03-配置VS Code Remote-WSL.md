@@ -1,22 +1,21 @@
 # 配置 VS Code Remote-WSL
 
-> 本文档从 `02-WSL安装与基础配置.md` 独立出来，集中介绍 WSL 中开发工具的安装与配置。
+> 本文档专门介绍 VS Code Remote-WSL 插件的作用与使用。
 > 基础环境（WSL 安装、换源、更新、必备工具）见 `02-WSL安装与基础配置.md`。
-> GTKWave 的安装与验证已并入 `02-WSL安装与基础配置.md` 7.1 节（WSLg 验证）。
 
 ---
 
 ## 目录
 
-1. [配置 VS Code Remote-WSL](#1-配置-vs-code-remote-wsl)
+1. [Remote-WSL 是什么？（先理解再配置）](#1-remote-wsl-是什么先理解再配置)
+2. [安装 VS Code 扩展](#2-安装-vs-code-扩展)
+3. [从 WSL 终端打开 VS Code](#3-从-wsl-终端打开-vs-code)
+4. [如何确认你在 Remote 模式](#4-如何确认你在-remote-模式)
+5. [项目目录选择](#5-项目目录选择)
 
 ---
 
-## 1. 配置 VS Code Remote-WSL
-
-这是 FPGA 开发的核心工作方式：**VS Code 在 Windows 界面，代码和命令跑在 WSL 里**。
-
-### Remote-WSL 是什么？（先理解再配置）
+## 1. Remote-WSL 是什么？（先理解再配置）
 
 **一句话**：让你的 **VS Code 界面在 Windows 上，但代码、终端、命令全跑在 WSL 里**。
 
@@ -50,7 +49,7 @@ Windows 桌面                        WSL 内部
 | 调试（断点） | ❌ 不支持 | ✅ 支持 |
 | 性能 | 慢（走 9P 协议） | 快（后端在 WSL 内） |
 
-### 1.1 安装 VS Code 扩展
+## 2. 安装 VS Code 扩展
 
 在 Windows 的 VS Code 中安装扩展：**Remote - WSL**（发布者：Microsoft）。
 
@@ -58,7 +57,7 @@ Windows 桌面                        WSL 内部
 
 这个扩展会自动安装其他需要的 Remote 插件。
 
-### 1.2 从 WSL 终端打开 VS Code
+## 3. 从 WSL 终端打开 VS Code
 
 ```bash
 # 在 WSL 中进入你的项目目录
@@ -73,7 +72,7 @@ code .
 2. 连接到 WSL
 3. 打开当前目录作为工作区
 
-### 1.3 如何确认你在 Remote 模式
+## 4. 如何确认你在 Remote 模式
 
 打开 VS Code 后，查看左下角：
 
@@ -85,7 +84,7 @@ code .
 
 终端（Ctrl+`）会直接打开 WSL 的 Bash。
 
-### 1.4 项目目录选择
+## 5. 项目目录选择
 
 | 存放位置 | 路径 | 性能 | 推荐 |
 |----------|------|------|------|
