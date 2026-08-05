@@ -275,9 +275,27 @@ wsl -d Ubuntu    # 指定发行版
 
 创建用户流程见 [3.3](#33-首次启动创建用户实测流程)。
 
-### 4.2 更新软件包
+### 4.2 apt 加速（换国内源，第一步先做）
 
-这是装完系统后的标准操作：
+> ⚠️ **实测修正**：Ubuntu 24.04 的 apt 源文件**不在** `/etc/apt/sources.list`（该文件在 24.04 里只是空壳），真正的源在 **`/etc/apt/sources.list.d/ubuntu.sources`**（Deb822 新格式）。
+
+```bash
+# 备份原有源（24.04 实际文件）
+sudo cp /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list.d/ubuntu.sources.bak
+
+# 编辑源列表（使用 Ubuntu 清华镜像）
+sudo sed -i 's|http://archive.ubuntu.com|https://mirrors.tuna.tsinghua.edu.cn|g' /etc/apt/sources.list.d/ubuntu.sources
+sudo sed -i 's|http://security.ubuntu.com|https://mirrors.tuna.tsinghua.edu.cn|g' /etc/apt/sources.list.d/ubuntu.sources
+
+# 验证（应看到 2 处 mirrors.tuna）
+grep -c "mirrors.tuna" /etc/apt/sources.list.d/ubuntu.sources
+```
+
+> 💡 **为什么第一步就换源**：默认源是国外服务器（archive.ubuntu.com），国内下载慢或超时。**先换源，再 update/upgrade**，升级速度快几倍，还不会装到一半卡住。
+
+### 4.3 更新软件包
+
+换源之后的标准操作：
 
 ```bash
 # 更新软件包列表
@@ -290,7 +308,9 @@ sudo apt upgrade -y
 sudo apt autoremove -y
 ```
 
-### 4.3 确认 WSL 版本
+> 💡 升级包数量多（首次可能 200+ 个）是正常的，耐心等完即可。
+
+### 4.4 确认 WSL 版本
 
 ```bash
 # 在 WSL 中查看当前是 WSL 1 还是 WSL 2
@@ -304,7 +324,7 @@ wsl.exe -l -v
 * Ubuntu-24.04    Running         2
 ```
 
-### 4.4 设置默认用户（可选）
+### 4.5 设置默认用户（可选）
 
 如果 `wsl` 命令进入后不是你的用户：
 
@@ -362,23 +382,7 @@ chsh -s $(which zsh)
 
 ## 6. 包管理器与基础工具安装
 
-### 6.1 apt 加速（换国内源）
-
-> ⚠️ **实测修正**：Ubuntu 24.04 的 apt 源文件**不在** `/etc/apt/sources.list`（该文件在 24.04 里只是空壳），真正的源在 **`/etc/apt/sources.list.d/ubuntu.sources`**（Deb822 新格式）。
-
-```bash
-# 备份原有源（24.04 实际文件）
-sudo cp /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list.d/ubuntu.sources.bak
-
-# 编辑源列表（使用 Ubuntu 清华镜像）
-sudo sed -i 's|http://archive.ubuntu.com|https://mirrors.tuna.tsinghua.edu.cn|g' /etc/apt/sources.list.d/ubuntu.sources
-sudo sed -i 's|http://security.ubuntu.com|https://mirrors.tuna.tsinghua.edu.cn|g' /etc/apt/sources.list.d/ubuntu.sources
-
-# 更新
-sudo apt update
-```
-
-### 6.2 安装必备工具
+### 6.1 安装必备工具
 
 ```bash
 # 开发工具全家桶
@@ -391,7 +395,7 @@ sudo apt install -y tcl                # TCL 解释器（FPGA 脚本常用）
 sudo apt install -y tree htop neofetch # 辅助工具
 ```
 
-### 6.3 配置 Git
+### 6.2 配置 Git
 
 ```bash
 git config --global user.name "HaroldFrey"
