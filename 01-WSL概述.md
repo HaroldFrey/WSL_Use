@@ -131,7 +131,7 @@ Windows 和 WSL 不是两个隔离的世界——它们可以**无缝通信、�
 ```bash
 # Windows 的磁盘自动挂载到 /mnt/ 下
 ls /mnt/c/Users/          # 浏览 C 盘用户目录
-cp /mnt/d/Stduy/data.txt ~/  # 从 D 盘复制文件到 WSL 家目录
+cp /mnt/d/FPGA_Self_Stduy/data.txt ~/  # 从 D 盘复制文件到 WSL 家目录
 ```
 
 #### 从 Windows 访问 WSL 文件
@@ -423,11 +423,11 @@ make -C obj_dir -f Vmy_design.mk
 # 在 Windows 终端中
 wsl --list --verbose
   NAME            STATE           VERSION
-* Ubuntu-24.04    Running         2
+* Ubuntu          Running         2
   Debian          Stopped         2
 
 # 进入指定发行版
-wsl -d Ubuntu-24.04
+wsl -d Ubuntu
 wsl -d Debian
 ```
 
@@ -535,7 +535,7 @@ rsync -avz ~/fpga_output/ user@server:/data/
 
 ## 下一步
 
-安装 WSL 2 + Ubuntu：参见下一个文档 `02-WSL安装与基础配置.md`（待编写）。
+安装 WSL 2 + Ubuntu：参见 `02-WSL安装与基础配置.md`。后续文档：`03-配置VS Code Remote-WSL.md`（VS Code 远程开发）、`04-cocotb使用指南.md`（Python 验证 RTL）、`05-ClaudeCode-WSL配置.md`（WSL 中使用 Claude Code）。
 
 ---
 

@@ -321,7 +321,7 @@ wsl.exe -l -v
 
 ```
   NAME            STATE           VERSION
-* Ubuntu-24.04    Running         2
+* Ubuntu          Running         2
 ```
 
 ### 4.5 设置默认用户（可选）
@@ -332,9 +332,11 @@ wsl.exe -l -v
 # 在 PowerShell 中设置默认用户
 <发行版名> config --default-user <你的用户名>
 
-# 例如：
-Ubuntu-24.04 config --default-user harold
+# 例如（商店版安装的 Ubuntu）：
+Ubuntu config --default-user harold
 ```
+
+> 💡 用 `wsl --import` 迁移过的发行版不支持上面的命令，改用 wsl.conf（见 [3.4](#34-商店版数据位置与迁移到-d-盘) 第 5 步）。
 
 ---
 
@@ -486,6 +488,7 @@ D:\FPGA_Self_Stduy\WSL_Use\    ← Windows 端：存放文档（本项目实际�
     ├── 02-WSL安装与基础配置.md
     ├── 03-配置VS Code Remote-WSL.md ← VS Code Remote-WSL + GTKWave
     ├── 04-cocotb使用指南.md       ← Python 验证 RTL（cocotb）
+    ├── 05-ClaudeCode-WSL配置.md   ← WSL 中使用 Claude Code
     └── ...
 
 ~/projects/                     ← WSL 端：存放代码和开发项目
@@ -674,7 +677,7 @@ wsl --unregister Ubuntu
 | # | 检查项 | 命令 | 期望结果 |
 |---|--------|------|----------|
 | 1 | WSL 版本 | `wsl --version` | `2.x.x` |
-| 2 | 发行版版本 | `wsl -l -v` | `Ubuntu-24.04 Running 2` |
+| 2 | 发行版版本 | `wsl -l -v` | `Ubuntu Running 2` |
 | 3 | 进入 WSL | `wsl` | 进入 Bash，显示 `user@machine:~$` |
 | 4 | 软件包更新 | `sudo apt update` | 无报错 |
 | 5 | gcc 可用 | `gcc --version` | 显示版本号 |
@@ -691,8 +694,10 @@ wsl --unregister Ubuntu
 
 ## 下一步
 
-安装完成后，参考下一个文档进行面向 FPGA 开发的工具链配置：
-`03-FPGA开发环境搭建.md`（待编写）。
+安装完成后：
+- `03-配置VS Code Remote-WSL.md` —— VS Code 远程开发配置
+- `04-cocotb使用指南.md` —— 用 Python 验证 RTL（iverilog + cocotb）
+- `05-ClaudeCode-WSL配置.md` —— WSL 中使用 Claude Code
 
 ---
 

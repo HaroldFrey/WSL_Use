@@ -102,7 +102,7 @@ pip install pytest
 ### 4.1 文件结构
 
 ```
-~/project/cocotb_counter/
+~/projects/cocotb_counter/
 ├── counter.sv        ← 被测模块（DUT）
 ├── test_counter.py   ← cocotb 测试代码
 └── Makefile          ← 构建/运行脚本
@@ -193,7 +193,7 @@ include $(shell cocotb-config --makefiles)/Makefile.sim
 
 ```bash
 source ~/cocotb-env/bin/activate    # 激活 venv
-cd ~/project/cocotb_counter
+cd ~/projects/cocotb_counter
 make
 ```
 

@@ -36,7 +36,7 @@ Windows 桌面                        WSL 内部
 
 - **前端**（Windows 的 VS Code）：你看到的界面、编辑器、插件
 - **后端**（WSL 里自动装的 VS Code Server）：实际读写文件、跑命令
-- 连接后，VS Code 左下角出现绿色 `>< WSL: Ubuntu-24` 角标
+- 连接后，VS Code 左下角出现绿色 `>< WSL: Ubuntu` 角标
 
 > 💡 类比：就像手机遥控智能电视——界面在手机上，真正播放的是电视。或"远程桌面进 Linux，只不过窗口是 VS Code 而不是黑终端"。
 
@@ -108,7 +108,7 @@ code .
 
 ```
 ┌──────────────────┐
-│ >< WSL: Ubuntu-24│  ← 看到这个绿色角标，说明已连入 WSL
+│ >< WSL: Ubuntu  │  ← 看到这个绿色角标，说明已连入 WSL
 └──────────────────┘
 ```
 
@@ -119,7 +119,7 @@ code .
 | 存放位置 | 路径 | 性能 | 推荐 |
 |----------|------|------|------|
 | WSL 内部 | `~/projects/my_project` | ⚡ 极快 | ✅ **推荐** |
-| Windows `/mnt/` | `/mnt/d/Stduy/my_project` | 🐢 慢 5-10 倍 | ❌ 不推荐 |
+| Windows `/mnt/` | `/mnt/d/FPGA_Self_Stduy/my_project` | 🐢 慢 5-10 倍 | ❌ 不推荐 |
 
 > 开发代码放在 WSL 内（`/home/<user>/`）。仅在需要跨系统共享文件时才放在 `/mnt/` 下。
 
