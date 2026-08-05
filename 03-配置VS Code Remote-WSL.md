@@ -59,6 +59,11 @@ Windows 桌面                        WSL 内部
 
 这个扩展会自动安装其他需要的 Remote 插件。
 
+> ⚠️ **插件在 WSL 侧安装**：连接 WSL 后，之前装过的插件分两类——
+> - **UI 类**（主题、图标、中文界面）→ 自动通用，无需操作 ✅
+> - **工具类**（Python、Verilog 语法、GitLens 等）→ 需在 WSL 侧**单独安装**：扩展市场里会显示"在 WSL 中安装"（Install in WSL）按钮，点一下即可。因为 WSL 是独立环境，工具类插件要装进 WSL 里才能配合 Linux 工具链工作。
+> - Claude Code 的 skill → 不受影响，用户级配置（`~/.claude/skills/`），任何窗口都能用。
+
 ## 3. 从 WSL 终端打开 VS Code
 
 ```bash
@@ -73,6 +78,15 @@ code .
 1. 安装 WSL 里的 VS Code Server
 2. 连接到 WSL
 3. 打开当前目录作为工作区
+
+### 日常启动的两种方式
+
+| 方式 | 操作 | 特点 |
+|------|------|------|
+| **A：从终端进（推荐）** | 打开 Windows Terminal → `wsl` → `cd ~/project` → `code .` | 直接打开指定目录，一步到位 |
+| **B：从桌面图标进** | 点 VS Code 图标 → 左下角绿色角标 `><` → **Connect to WSL** → 选 Ubuntu | 先连上 WSL，再 File → Open Folder 选目录 |
+
+> ⚠️ 直接双击桌面 VS Code 图标，默认打开的是**本地 Windows 模式**（不连 WSL）——看左下角有没有绿色角标判断。日常建议用**方式 A**。
 
 ## 4. 如何确认你在 Remote 模式
 
