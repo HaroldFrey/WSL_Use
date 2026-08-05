@@ -64,7 +64,19 @@ ln -s /mnt/c/Users/<你的用户名>/.claude/settings.json ~/.claude/settings.js
 - 用 cc-switch 在 Windows 切换配置，WSL **自动同步**（同一份文件）
 - 登录页不再出现，启动即用
 
-> 💡 为什么用软链接而不是复制：一份配置两边共用，永远同步，不用维护两份。
+> 💡 为什么推荐软链接而不是复制：一份配置两边共用，永远同步，不用维护两份。
+
+**方案 B：直接复制（可行，但需手动同步）**
+
+```bash
+cp /mnt/c/Users/<你的用户名>/.claude/settings.json ~/.claude/settings.json
+```
+
+| 对比 | 软链接（推荐） | 直接复制 |
+|------|---------------|----------|
+| 配置同步 | ✅ 永远同步（同一份文件） | ❌ 改一边不影响另一边，需手动再复制 |
+| cc-switch 切换 | ✅ WSL 自动跟着变 | ❌ 切换后 WSL 还是旧配置 |
+| 适用场景 | 日常使用 | 想让 WSL 配置独立、或链接不便时 |
 
 ---
 
@@ -75,6 +87,14 @@ ln -s /mnt/c/Users/<你的用户名>/.claude/skills ~/.claude/skills
 ```
 
 两边共用同一套 skills（`/ls`、`/pwd`、`/git-push` 等），永久同步，无需在 WSL 侧重复制作。
+
+**方案 B：直接复制**——想让 WSL 侧独立维护 skills 时：
+
+```bash
+cp -r /mnt/c/Users/<你的用户名>/.claude/skills ~/.claude/
+```
+
+> 复制后是两份独立目录，改一边不影响另一边；以后 Windows 侧新增 skill 不会自动出现在 WSL。
 
 ---
 
