@@ -63,6 +63,11 @@ Windows 桌面                        WSL 内部
 > - **UI 类**（主题、图标、中文界面）→ 自动通用，无需操作 ✅
 > - **工具类**（Python、Verilog 语法、GitLens 等）→ 需在 WSL 侧**单独安装**：扩展市场里会显示"在 WSL 中安装"（Install in WSL）按钮，点一下即可。因为 WSL 是独立环境，工具类插件要装进 WSL 里才能配合 Linux 工具链工作。
 > - Claude Code 的 skill → 不受影响，用户级配置（`~/.claude/skills/`），任何窗口都能用。
+>
+> 📍 **插件存放位置（实测）**：
+> - WSL 侧插件 → `~/.vscode-server/extensions/`（物理上在 D 盘虚拟磁盘 vhdx 内）
+> - Windows 侧插件 → `C:\Users\<用户名>\.vscode\extensions\`
+> - 两边互相独立：WSL 窗口里同一个插件会显示"未安装"，需要点"在 WSL 中安装"
 
 ## 3. 从 WSL 终端打开 VS Code
 
@@ -110,3 +115,5 @@ code .
 | Windows `/mnt/` | `/mnt/d/Stduy/my_project` | 🐢 慢 5-10 倍 | ❌ 不推荐 |
 
 > 开发代码放在 WSL 内（`/home/<user>/`）。仅在需要跨系统共享文件时才放在 `/mnt/` 下。
+
+> 💡 **工作区概念（实测）**：工作区 = VS Code 侧边栏展示的文件范围 + 终端默认目录。**先 `cd` 到项目目录再 `code .`**——如果直接在家目录执行 `code .`，侧边栏会显示一堆隐藏文件（`.bashrc`、`.profile` 等），看着乱。每个项目一个文件夹，各开各的工作区，最清晰。
