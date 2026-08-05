@@ -215,6 +215,76 @@ TEST                           PASS ✓
 | `iverilog: command not found` | 仿真器未装 | `sudo apt install iverilog -y` |
 | 测试失败但无具体信息 | 断言报错 | 查看输出中 `Traceback` 和 `AssertionError` |
 
+### 5.2 在 VS Code 中开发与运行（WSL 实测）
+
+**推荐工作流**：VS Code（WSL 窗口）写代码 → 集成终端跑仿真 → GTKWave 看波形。
+
+**第一步：打开项目（WSL 窗口）**
+
+```bash
+cd ~/projects/cocotb_counter
+code .
+```
+
+左下角出现绿色 `>< WSL: Ubuntu` 角标 = 已连入 WSL（详见 03 文档）。
+
+**第二步：集成终端中编译 + 仿真**
+
+按 `Ctrl+``（反引号）打开 VS Code 集成终端（自动是 Ubuntu bash）：
+
+```bash
+source ~/cocotb-env/bin/activate    # 激活虚拟环境（每个新终端都要）
+make                                 # 编译 + 仿真
+```
+
+看到 `TESTS=1 PASS=1 FAIL=0 SKIP=0` 即通过。
+
+**第三步：打开波形**
+
+```bash
+gtkwave sim_build/counter.fst &     # 或 sim_build/counter.vcd
+```
+
+窗口弹出后：SST 栏选 `counter` 模块 → 选中 `clk`/`rst`/`count` → Append → 查看波形。
+
+> 💡 在**自己的 VS Code 集成终端**里启动 gtkwave，窗口会一直开着（临时会话启动的窗口会随会话关闭而消失）。
+
+**进阶：配置 VS Code 任务，一键编译/开波形**
+
+在项目根目录创建 `.vscode/tasks.json`：
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "cocotb: 编译+仿真",
+      "type": "shell",
+      "command": "source ~/cocotb-env/bin/activate && make",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "gtkwave: 打开波形",
+      "type": "shell",
+      "command": "gtkwave sim_build/counter.fst &",
+      "group": "test"
+    },
+    {
+      "label": "cocotb: 清理",
+      "type": "shell",
+      "command": "source ~/cocotb-env/bin/activate && make clean",
+      "group": "clean"
+    }
+  ]
+}
+```
+
+之后：
+- `Ctrl+Shift+B` → 一键编译 + 仿真
+- `Ctrl+Shift+P` → 输入 `Tasks: Run Task` → 选 `gtkwave: 打开波形`
+- 任务在项目根目录运行，不用手动 cd
+
 ---
 
 ## 6. 常用操作速查
