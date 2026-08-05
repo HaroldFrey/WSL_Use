@@ -489,6 +489,7 @@ D:\FPGA_Self_Stduy\WSL_Use\    ← Windows 端：存放文档（本项目实际�
     ├── 03-配置VS Code Remote-WSL.md ← VS Code Remote-WSL + GTKWave
     ├── 04-cocotb使用指南.md       ← Python 验证 RTL（cocotb）
     ├── 05-ClaudeCode-WSL配置.md   ← WSL 中使用 Claude Code
+    ├── 06-iverilog与GTKWave安装.md ← HDL 仿真器 + 波形查看器
     └── ...
 
 ~/projects/                     ← WSL 端：存放代码和开发项目
