@@ -64,6 +64,13 @@ Windows 桌面                        WSL 内部
 > - **工具类**（Python、Verilog 语法、GitLens 等）→ 需在 WSL 侧**单独安装**：扩展市场里会显示"在 WSL 中安装"（Install in WSL）按钮，点一下即可。因为 WSL 是独立环境，工具类插件要装进 WSL 里才能配合 Linux 工具链工作。
 > - Claude Code 的 skill → 不受影响，用户级配置（`~/.claude/skills/`），任何窗口都能用。
 >
+> 🎯 **用按钮判断插件类型（实测）**：
+> - 有 **"Install in WSL: Ubuntu"** 按钮 → **工具类**，工作地点在 WSL，必须装进 WSL，点它 ✅
+> - 只有 **"安装"**（无 WSL 字样）→ **UI 类**，工作在 Windows 界面层，装一次全局生效，不需要装进 WSL
+> - 一句话记忆：**"Install in WSL" 按钮 = 这个插件的工作地点在 WSL**。
+>
+> 🔄 **"看到但需要使能"是怎么回事**：Windows 侧已装的插件会**投影**到 WSL 窗口的扩展列表里（省得重新搜索）。点"使能 / Enable in WSL" = 把该插件**安装一份副本到 WSL**（效果与"在 WSL 中安装"相同）；UI 类则直接生效，无需使能。
+>
 > 📍 **插件存放位置（实测）**：
 > - WSL 侧插件 → `~/.vscode-server/extensions/`（物理上在 D 盘虚拟磁盘 vhdx 内）
 > - Windows 侧插件 → `C:\Users\<用户名>\.vscode\extensions\`
