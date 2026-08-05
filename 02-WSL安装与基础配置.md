@@ -622,10 +622,9 @@ wsl --unregister Ubuntu
 | 6 | git 可用 | `git --version` | 显示版本号 |
 | 7 | Python 可用 | `python3 --version` | 显示版本号 |
 | 8 | TCL 可用 | `tclsh <<< "puts hello"` | 输出 `hello` |
-| 9 | WSLg 图形 | `gedit &` | 窗口出现在 Windows 桌面 |
-| 10 | VS Code Remote + GTKWave | 见 [03-开发工具安装.md](03-开发工具安装.md) | `code .` 打开后左下角显示 `WSL: Ubuntu-24` |
-| 11 | Windows 文件可见 | `ls /mnt/c/` | 列出 C 盘目录 |
-| 12 | Windows → WSL | 资源管理器输入 `\\wsl$\` | 看到 Ubuntu 目录树 |
+| 9 | WSLg 图形 | `xclock`（或 `gtkwave`） | 窗口出现在 Windows 桌面，可交互 |
+| 10 | Windows 文件可见 | `ls /mnt/c/` | 列出 C 盘目录 |
+| 11 | Windows → WSL | 资源管理器输入 `\\wsl$\` | 看到 Ubuntu 目录树 |
 
 全部通过 → 🎉 WSL 环境就绪，可以开始开发了。
 
