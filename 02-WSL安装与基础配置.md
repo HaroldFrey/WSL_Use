@@ -452,10 +452,13 @@ gtkwave
 | 问题 | 可能原因 | 解决 |
 |------|----------|------|
 | GUI 应用无窗口 | WSLg 未正确启动 | `wsl --shutdown` 然后重新打开 WSL |
+| 任务栏有图标但**窗口点不出来**（实测：xclock） | WSLg 显示会话异常 | `wsl --shutdown` 重启 WSLg 后重开终端再试（实测有效） |
 | 窗口弹出但**无法交互**（点不动） | 无 GPU 环境下个别 GTK 应用软件渲染兼容问题（实测：xclock/GTKWave 正常） | 换 xclock/GTKWave 验证 |
 | 窗口无法打开 | 显卡驱动问题 | 更新 Windows 显卡驱动 |
 | 中文乱码 | 缺少中文字体 | `sudo apt install fonts-noto-cjk -y` |
 | 应用启动报 `cannot open display` | DISPLAY 变量未设置（不应发生） | 检查 `echo $DISPLAY`，应为 `:0` |
+
+> ⚠️ **实测提醒**：`wsl --shutdown` 是 **Windows 侧命令**——在 Ubuntu 终端里直接输入会报 `Command 'wsl' not found`。应在 Windows PowerShell 中执行，或在 Ubuntu 里用 `wsl.exe --shutdown`（加 `.exe` 后缀）。执行后当前 Ubuntu 窗口会被关闭，属正常现象。
 
 > 💡 WSLg 自动设置 `DISPLAY` 和 `WAYLAND_DISPLAY` 环境变量，你不需要手动配置任何东西。
 >
