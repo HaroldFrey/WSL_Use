@@ -426,16 +426,50 @@ gedit &
 # 如果 gedit 窗口出现在 Windows 桌面上 → WSLg 正常 ✅
 ```
 
+#### 补充验证 1：xclock（更轻量、更可靠的验证工具）
+
+gedit 是无 GPU 环境下有时弹窗但无法交互（见下方实测教训）。**xclock 是更可靠的试金石**——极轻量，软件渲染下也稳定：
+
+```bash
+# 安装 X11 经典工具集（含 xclock、xeyes 等）
+sudo apt install x11-apps -y
+
+# 启动模拟时钟（圆盘 + 走动的指针）
+xclock
+
+# 窗口弹出且指针走动 → WSLg 正常 ✅
+```
+
+> ⚠️ **实测教训**：xclock 可能输出 `Warning: Missing charsets in String to FontSet conversion`——这是**无害警告**。老式 X11 工具走 X 核心字体协议，而 WSLg 的 Xwayland 不提供该字体集，所以必现此警告，**不影响任何功能**。GTK/Qt 应用（GTKWave 等）走 fontconfig，不会出现此警告。
+
+#### 补充验证 2：用 GTKWave 验证（最终目标工具）
+
+GTKWave 是 FPGA 波形查看器，也是 WSLg 环境下最重要的 GUI 工具，用它验证一举两得：
+
+```bash
+# 安装（或见 03-开发工具安装.md）
+sudo apt install gtkwave -y
+
+# 启动
+gtkwave
+
+# 预期：弹出 GTKWave 主窗口（含菜单栏 File/Edit/Search 等）
+# 窗口能点菜单、拖拽界面 → WSLg 完全正常 ✅
+```
+
 ### 7.2 WSLg 不工作的排查
 
 | 问题 | 可能原因 | 解决 |
 |------|----------|------|
 | `gedit &` 无窗口 | WSLg 未正确启动 | `wsl --shutdown` 然后重新打开 WSL |
+| 窗口弹出但**无法交互**（点不动） | 无 GPU 环境下 GTK 应用软件渲染兼容问题（实测：gedit 有此问题，xclock/GTKWave 正常） | 换 xclock/GTKWave 验证；gedit 可 `sudo apt remove gedit` 换其他编辑器 |
 | 窗口无法打开 | 显卡驱动问题 | 更新 Windows 显卡驱动 |
 | 中文乱码 | 缺少中文字体 | `sudo apt install fonts-noto-cjk -y` |
 | 应用启动报 `cannot open display` | DISPLAY 变量未设置（不应发生） | 检查 `echo $DISPLAY`，应为 `:0` |
 
 > 💡 WSLg 自动设置 `DISPLAY` 和 `WAYLAND_DISPLAY` 环境变量，你不需要手动配置任何东西。
+>
+> 📌 **实测结论**（无 NVIDIA 驱动环境）：窗口弹出即代表图形通路正常；若 GTK 应用（gedit）弹窗但无法交互，不是 WSLg 的问题，换 xclock / GTKWave 验证即可确认。
 
 ### 7.3 安装中文字体（推荐）
 
