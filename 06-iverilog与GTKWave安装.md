@@ -139,6 +139,15 @@ gtkwave sim_build/counter.fst
 
 > ⚠️ **实测修正**：`COMPILE_ARGS += --trace` 是 **Verilator** 的写法，iverilog 会报 `invalid option -- '-'`。iverilog + cocotb 请用 `WAVES=1`。
 
+**想要 VCD 格式？** cocotb 的 iverilog 支持固定生成 `.fst`（源码里写死了扩展名），用 `fst2vcd` 转换（GTKWave 自带）：
+
+```bash
+fst2vcd sim_build/counter.fst > sim_build/counter.vcd   # 注意：输出到标准输出，用 > 重定向
+gtkwave sim_build/counter.vcd                           # 打开 VCD
+```
+
+> 传统 iverilog 方式（不依赖 cocotb）可以直接生成 VCD：测试台里写 `$dumpfile("dump.vcd"); $dumpvars;`（见 [§5](#5-gtkwave-使用入门)）。
+
 **推荐流程**：cocotb 写断言验证功能 → GTKWave 看波形分析时序，两者互补。
 
 ---
