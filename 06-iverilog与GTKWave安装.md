@@ -109,16 +109,65 @@ gtkwave dump.fst &
 | 查看某时刻值 | 点击波形区，看右侧的数值栏 |
 | 批量添加 | 左栏 `Ctrl+A` 全选 → Append |
 
-### 让 iverilog 生成波形（不依赖 cocotb）
+**工具栏图标速查**（实测体验）：
+
+| 图标 | 作用 |
+|------|------|
+| Zoom In / Zoom Out（放大/缩小镜） | 缩放时间轴（或 `Ctrl+滚轮`） |
+| Zoom Fit | 一键显示全部波形 |
+| Zoom to Start / Zoom to End | 跳到波形开头 / 末尾 |
+| Search（放大镜+箭头） | 搜索信号跳变沿（找某次上升/下降） |
+| Mark（旗帜） | 在时间轴打标记，量两点之间的时间 |
+| Append / Replace | 把左侧选中信号加入波形区 / 替换现有波形 |
+| 波形区右键菜单 | Set Cursor（精确定位时间）、更多缩放选项 |
+
+> 这些图标只改变"查看方式"，**不会修改波形数据本身**——随便点，多试试就熟了。
+
+### 纯 iverilog 手动流程（不用 make，理解原理）
+
+不依赖 cocotb 的最简方式，4 步走通"编译 → 仿真 → 波形"：
+
+**① 写测试台 `tb_counter.v`**（手动驱动时钟/复位）：
+
+```verilog
+`timescale 1ns/1ps
+module tb_counter;
+    reg clk = 0;
+    reg rst = 1;
+    wire [7:0] count;
+
+    counter dut (.clk(clk), .rst(rst), .count(count));  // 例化被测模块
+
+    always #5 clk = ~clk;          // 每 5ns 翻转 → 10ns 周期时钟
+
+    initial begin
+        $dumpfile("dump.vcd");     // ⭐ 生成波形
+        $dumpvars(0, tb_counter);  //    记录所有信号
+        #10 rst = 0;               // 复位后释放
+        #100 $finish;              // 仿真结束
+    end
+endmodule
+```
+
+**② 编译**（iverilog 把两个文件编译成仿真程序 `sim`）：
 
 ```bash
-# 编译并生成 VCD 波形
-iverilog -o sim counter.v tb_counter.v
-vvp sim
-
-# 测试台里要有：
-#   $dumpfile("dump.vcd"); $dumpvars;
+iverilog -o sim counter.sv tb_counter.v
 ```
+
+**③ 运行仿真**（vvp 执行，自动生成 `dump.vcd`）：
+
+```bash
+vvp sim
+```
+
+**④ 打开波形**：
+
+```bash
+gtkwave dump.vcd &
+```
+
+> 💡 这套流程的好处：**每一步都看得见、可理解**（编译 → 运行 → 波形）。cocotb 只是把这套流程用 Python 断言自动化了，底层还是这几步。
 
 ---
 
