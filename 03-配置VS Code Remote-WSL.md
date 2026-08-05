@@ -74,6 +74,8 @@ cd ~/projects/my_fpga_project
 code .
 ```
 
+> 💡 `.` 表示**当前目录**——`code .` 就是"用 VS Code 打开当前所在的目录作为工作区"。所以先 `cd` 到哪个目录，VS Code 打开的就是哪个目录。
+
 首次运行 `code .` 时，VS Code 会自动：
 1. 安装 WSL 里的 VS Code Server
 2. 连接到 WSL
