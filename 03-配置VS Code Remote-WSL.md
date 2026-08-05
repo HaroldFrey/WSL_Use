@@ -1,4 +1,4 @@
-# 开发工具安装——VS Code Remote-WSL
+# 配置 VS Code Remote-WSL
 
 > 本文档从 `02-WSL安装与基础配置.md` 独立出来，集中介绍 WSL 中开发工具的安装与配置。
 > 基础环境（WSL 安装、换源、更新、必备工具）见 `02-WSL安装与基础配置.md`。

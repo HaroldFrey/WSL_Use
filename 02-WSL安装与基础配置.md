@@ -4,7 +4,7 @@
 > **最后更新**：2026-07-30  
 > **前置条件**：已阅读 [01-WSL概述.md](01-WSL概述.md)  
 > **目的**：一步步完成 WSL 2 + Ubuntu 的安装与基础配置
-> **开发工具**（VS Code Remote-WSL、GTKWave）见 [03-开发工具安装.md](03-开发工具安装.md)
+> **开发工具**（VS Code Remote-WSL、GTKWave）见 [03-配置VS Code Remote-WSL.md](03-配置VS%20Code%20Remote-WSL.md)
 
 ---
 
@@ -437,7 +437,7 @@ xclock
 GTKWave 是 FPGA 波形查看器，也是 WSLg 环境下最重要的 GUI 工具，用它验证一举两得：
 
 ```bash
-# 安装（或见 03-开发工具安装.md）
+# 安装（或见 03-配置VS Code Remote-WSL.md）
 sudo apt install gtkwave -y
 
 # 启动
@@ -481,7 +481,7 @@ fc-cache -fv
 D:\FPGA_Self_Stduy\WSL_Use\    ← Windows 端：存放文档（本项目实际路径）
     ├── 01-WSL概述.md
     ├── 02-WSL安装与基础配置.md
-    ├── 03-开发工具安装.md        ← VS Code Remote-WSL + GTKWave
+    ├── 03-配置VS Code Remote-WSL.md ← VS Code Remote-WSL + GTKWave
     └── ...
 
 ~/projects/                     ← WSL 端：存放代码和开发项目
