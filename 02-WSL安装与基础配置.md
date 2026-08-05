@@ -60,11 +60,11 @@
 在管理员 PowerShell 中执行：
 
 ```powershell
-# 方式 1：从 GitHub 官网直接下载（国内推荐，绕过 Microsoft Store）
-wsl --update --web-download
-
-# 方式 2：从 Microsoft Store 更新（方式 1 慢或失败时换这个）
+# 方式 1：从 Microsoft Store 更新（国内推荐，稳定，走微软 CDN）
 wsl --update
+
+# 方式 2：从 GitHub 官网直接下载（想用最新版，或 Store 更新失败时用）
+wsl --update --web-download
 ```
 
 这条命令会自动完成：
@@ -75,12 +75,55 @@ wsl --update
 
 | 部分 | 含义 |
 |------|------|
-| `wsl --update` | 把 WSL 平台组件（内核、WSLg、dxcore 等）更新到最新版 |
-| `--web-download` | 强制从 GitHub 官网直接下载安装包，绕过 Microsoft Store——Store 下载慢或失败时用这个 |
+| `wsl --update` | 从 Microsoft Store 更新 WSL 平台组件（内核、WSLg、dxcore 等），走微软 CDN，国内访问稳定 |
+| `--web-download` | 强制从 GitHub 官网直接下载安装包，绕过 Microsoft Store——想第一时间用新版本时用这个 |
 
-> 💡 下载慢是正常现象（GitHub 从国内访问较慢），耐心等待即可。如果电脑**从未使用过 WSL**，需先启用"虚拟机平台"和"适用于 Linux 的 Windows 子系统"两个 Windows 功能（方法见 [2.2](#22-如果上面的命令不行手动安装)），启用后需**重启电脑**。
+> 💡 如果电脑**从未使用过 WSL**，需先启用"虚拟机平台"和"适用于 Linux 的 Windows 子系统"两个 Windows 功能（方法见 [2.2](#22-启用-windows-功能首次使用-wsl-必做)），启用后需**重启电脑**。
+>
+> 🐌 如果选方式 2 且下载慢，是正常现象（GitHub 从国内访问较慢），耐心等待即可；GitHub 连不上时换方式 1。
 
-### 2.2 如果上面的命令不行（手动安装）
+### 2.2 启用 Windows 功能（首次使用 WSL 必做）
+
+如果电脑**从未使用过 WSL**，需要先打开两个 Windows 功能，否则上面的 `wsl --update` 会失败。有两种方式开启：
+
+#### GUI 方式（推荐，小白友好）
+
+1. 按 `Win + R` → 输入 `optionalfeatures` → 回车，弹出 **"Windows 功能"** 窗口
+2. 在弹出的窗口列表中，**勾选**以下两项：
+   - ☑ **适用于 Linux 的 Windows 子系统**（英文版：Windows Subsystem for Linux）
+   - ☑ **虚拟机平台**（英文版：Virtual Machine Platform）
+3. 点击 **确定** → 等待安装完成 → **重启电脑**
+
+> 🔍 搜索时不知道输入什么：`Win + R` 输入 `optionalfeatures`，或者在开始菜单搜索 **"启用或关闭 Windows 功能"**（英文系统搜 "Turn Windows features on or off"）——这两者打开的是同一个窗口。
+
+#### 命令方式（也可以用）
+
+```powershell
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+```
+
+然后**重启电脑**。
+
+#### 重启后会发生什么（实测）
+
+```
+从未配置过这两个功能
+    ↓
+启用功能（GUI 或命令方式）
+    ↓
+重启电脑
+    ↓
+Windows 完成功能启用，并自动开始下载/更新 WSL 平台组件（终端弹出进度条）
+    ↓
+下载完成后自动安装，之后就能正常使用 WSL
+```
+
+> 💡 **没自动弹出更新？** 不用慌——第一次运行 `wsl` 命令时，系统检测到组件缺失/过旧，同样会触发这个下载更新流程。反正**总会装**，只是"重启后自动弹"和"首次运行 wsl 时弹"的区别。
+>
+> ⚠️ 弹窗下载进度条是**正常现象**，不是错误。下载到 100% 后自动安装，耐心等完即可。如果下载卡住或失败，之后手动跑一次 `wsl --update` 补装。
+
+### 2.3 如果上面的命令不行（手动安装）
 
 某些旧版 Windows 或企业版可能需要手动执行：
 
@@ -100,7 +143,7 @@ dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /nores
 wsl --set-default-version 2
 ```
 
-### 2.3 确认安装结果
+### 2.4 确认安装结果
 
 ```powershell
 wsl --version
@@ -517,11 +560,11 @@ cd ~/docs/WSL_Use
 
 ## 10. 常见问题排查
 
-### 9.1 `wsl: command not found`
+### 10.1 `wsl: command not found`
 
 确保 PowerShell 以**管理员身份**运行，再执行安装命令。
 
-### 9.2 虚拟化错误
+### 10.2 虚拟化错误
 
 ```
 Please enable the Virtual Machine Platform Windows feature
@@ -534,11 +577,11 @@ dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all
 # 重启
 ```
 
-### 9.3 WSL 启动失败："未安装内核组件"
+### 10.3 WSL 启动失败："未安装内核组件"
 
 下载安装 WSL 2 内核更新包：https://aka.ms/wsl2kernel
 
-### 9.4 `localhost` 转发不工作
+### 10.4 `localhost` 转发不工作
 
 WSL 2 使用动态 IP，但 localhost 转发应该是自动的。如果不工作：
 
@@ -549,7 +592,7 @@ netsh winsock reset
 # 重启电脑
 ```
 
-### 9.5 磁盘空间问题
+### 10.5 磁盘空间问题
 
 WSL 2 的虚拟磁盘（`.vhdx` 文件）只增不减。如果占用过大：
 
@@ -568,7 +611,7 @@ diskpart
   compact vdisk
 ```
 
-### 9.6 网络问题（wsl --install 下载失败）
+### 10.6 网络问题（wsl --install 下载失败）
 
 如果 `wsl --install` 在下载时卡住或失败：
 
@@ -585,13 +628,13 @@ wsl --install
 # 从 Microsoft Store 直接搜索安装 Ubuntu
 ```
 
-### 9.7 `wsl --list --online` 报 `WSL/WININET_E_CANNOT_CONNECT`
+### 10.7 `wsl --list --online` 报 `WSL/WININET_E_CANNOT_CONNECT`
 
 `wsl --list --online` 需要访问 GitHub 上的发行版清单（`raw.githubusercontent.com/microsoft/WSL/...`），国内网络经常连不上。这是**网络问题**，不是配置错误：
 - 稍后重试（网络波动时有时能通）
 - 或绕过它：改用商店安装（[3.1](#31-图形界面安装推荐)），或用命令行安装卡住时参考 [3.2](#32-命令行安装) 的实测教训
 
-### 9.8 卸载应用后数据残留（实测 1.3G 没删掉）
+### 10.8 卸载应用后数据残留（实测 1.3G 没删掉）
 
 在商店/设置里卸载 Ubuntu 应用，**不会**自动注销 WSL 注册表、也**不会**删除虚拟磁盘数据。彻底删除必须执行：
 
