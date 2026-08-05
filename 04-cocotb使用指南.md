@@ -187,6 +187,55 @@ include $(shell cocotb-config --makefiles)/Makefile.sim
 | `TOPLEVEL` | 顶层模块名（即 DUT 名） |
 | `COCOTB_TEST_MODULES` | Python 测试文件名（不含 .py，cocotb 2.x 写法；旧版用 `MODULE`，兼容但会提示弃用） |
 
+### 逐行解释（实测理解）
+
+```makefile
+SIM ?= icarus
+```
+`?=` 表示"**如果没设置才赋值**"——这样可以在命令行覆盖：`make SIM=verilator` 就换仿真器，不用改文件。`icarus` = Icarus Verilog。
+
+```makefile
+TOPLEVEL_LANG ?= verilog
+```
+DUT 的语言。`counter.sv` 虽是 SystemVerilog（.sv 扩展名），但这里写 `verilog` 即可——iverilog 会按扩展名自动识别语法。
+
+```makefile
+VERILOG_SOURCES = $(PWD)/counter.sv
+```
+被测模块的文件列表（可多个，空格分隔）。`$(PWD)` 是 make 的内置变量（当前目录），拼成**绝对路径**，保证在任意目录执行 `make` 都能找到文件。
+
+```makefile
+TOPLEVEL = counter
+```
+顶层模块名 = DUT 的名字。cocotb 用它找到被测模块；**也决定波形文件名**（`sim_build/counter.fst`）。
+
+```makefile
+COCOTB_TEST_MODULES = test_counter
+```
+Python 测试文件名（**不带** `.py` 后缀）。
+
+```makefile
+include $(shell cocotb-config --makefiles)/Makefile.sim
+```
+**最关键的一行**：`$(shell ...)` 让 make 执行 shell 命令——`cocotb-config --makefiles` 会输出 cocotb 自带 Makefile 的路径（在 venv 里），`include` 把它加载进来。
+
+> 💡 理解方式：**我们写的 6 行是"配置"，最后一行才是"引擎"**。cocotb 自带几百行的 Makefile.sim 包含了编译、仿真、结果检查的全部规则，我们只是告诉它"用哪个仿真器、测哪个模块、跑哪个测试"。
+
+### `make` 运行时到底做了什么（实测）
+
+```
+make
+  │
+  ├─ 1. 生成转储模块 sim_build/cocotb_iverilog_dump.v（WAVES=1 时）
+  ├─ 2. 编译：iverilog -o sim_build/sim.vvp counter.sv ...
+  ├─ 3. 运行：vvp sim_build/sim.vvp（加载 cocotb VPI 库 + 设置环境变量）
+  ├─ 4. 执行 Python 测试：test_counter.py
+  ├─ 5. 检查结果 results.xml → 打印 PASS / FAIL
+  └─ 结束
+```
+
+> 第 3 步手动做的话需要 5+ 个隐藏参数（环境变量、VPI 库路径等）——**这就是 make 的价值**：一条命令封装全部。
+
 ---
 
 ## 5. 运行与查看结果
