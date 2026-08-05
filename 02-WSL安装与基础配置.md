@@ -536,6 +536,43 @@ ln -s /mnt/d/FPGA_Self_Stduy/WSL_Use ~/docs/WSL_Use
 cd ~/docs/WSL_Use
 ```
 
+### 8.3 Windows 与 WSL 双向互通
+
+**两个系统互相能访问对方的所有文件**：
+
+```
+┌─────────────────────────────────────────────┐
+│                互通关系                      │
+│                                             │
+│  Windows → WSL：\\wsl$\Ubuntu              │
+│  (资源管理器输入这个地址，看到 Ubuntu 内部)   │
+│                                             │
+│  WSL → Windows：/mnt/c  /mnt/d             │
+│  (Linux 里直接访问 C、D 盘)                  │
+└─────────────────────────────────────────────┘
+```
+
+#### `\\wsl$` 是啥？
+
+`\\wsl$` 是 Windows 的**网络路径格式**（UNC 路径，就是访问网络共享那种 `\\服务器\共享名` 的写法）。WSL 自动注册了一个"共享"，把 Ubuntu 的整个文件系统暴露给 Windows：
+
+```
+\\wsl$\Ubuntu              ← Ubuntu 的根目录（/）
+\\wsl$\Ubuntu\home\harold  ← 你的家目录（~/）
+```
+
+在 Windows 资源管理器地址栏输入 `\\wsl$\Ubuntu` 回车，就能像普通文件夹一样浏览 Ubuntu 内部。
+
+**实际体验**：
+
+| 操作 | 做法 |
+|------|------|
+| 往 WSL 里拖文件 | Windows 里往 `\\wsl$\Ubuntu\home\harold` 拖 → WSL 里 `ls ~` 就能看到 |
+| 从 WSL 拿文件到 Windows | 反过来从 `\\wsl$\` 复制出来即可 |
+| 剪贴板互通 | Windows 复制的文本，WSL 里 `Ctrl+Shift+V` 粘贴（反之亦然） |
+
+> ⚠️ **互通 ≠ 同盘**：两个系统是**独立的两套文件系统**，只是互相能访问。WSL 自己的文件物理上在 `D:\WSL\Ubuntu\ext4.vhdx` 虚拟磁盘里；Windows 的文件在真实目录里。跨系统访问总比"自己那边"慢，所以代码放 WSL 内（`~`）、文档放 Windows（D 盘）、需要共享的走 `/mnt` 或 `\\wsl$`。
+
 ---
 
 ## 9. 常见问题排查
