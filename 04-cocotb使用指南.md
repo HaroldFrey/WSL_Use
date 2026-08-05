@@ -86,6 +86,9 @@ pip install cocotb
 
 # 4. 验证
 cocotb-config --version    # 应显示 2.x.x
+
+# 5.（可选）安装 pytest：断言失败时能显示更友好的报错信息
+pip install pytest
 ```
 
 > ⚠️ **PEP 668 报错**：直接在系统里 `pip install cocotb` 会报 `externally-managed-environment`——这是 Ubuntu 24.04 的保护机制，**不要**用 `--break-system-packages` 绕过，用 venv 即可。
@@ -134,8 +137,8 @@ from cocotb.triggers import FallingEdge
 @cocotb.test()
 async def test_counter(dut):
     """测试计数器复位后正常递增"""
-    # 启动 10ns 周期时钟
-    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    # 启动 10ns 周期时钟（cocotb 2.x 参数名为 unit，旧版为 units）
+    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
 
     # 复位
     await FallingEdge(dut.clk)
@@ -171,7 +174,7 @@ SIM ?= icarus
 TOPLEVEL_LANG ?= verilog
 VERILOG_SOURCES = $(PWD)/counter.sv
 TOPLEVEL = counter
-MODULE = test_counter
+COCOTB_TEST_MODULES = test_counter    # cocotb 2.x 写法（旧版 MODULE 已弃用）
 
 include $(shell cocotb-config --makefiles)/Makefile.sim
 ```
@@ -182,7 +185,7 @@ include $(shell cocotb-config --makefiles)/Makefile.sim
 | `TOPLEVEL_LANG` | DUT 语言（verilog / systemverilog） |
 | `VERILOG_SOURCES` | DUT 源文件列表 |
 | `TOPLEVEL` | 顶层模块名（即 DUT 名） |
-| `MODULE` | Python 测试文件名（不含 .py） |
+| `COCOTB_TEST_MODULES` | Python 测试文件名（不含 .py，cocotb 2.x 写法；旧版用 `MODULE`，兼容但会提示弃用） |
 
 ---
 
@@ -217,9 +220,9 @@ TEST                           PASS ✓
 ## 6. 常用操作速查
 
 ```python
-# 时钟：多种周期
-cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())   # 10ns
-cocotb.start_soon(Clock(dut.clk, 100, units="ps").start())  # 100ps
+# 时钟：多种周期（cocotb 2.x 参数名为 unit）
+cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())    # 10ns
+cocotb.start_soon(Clock(dut.clk, 100, unit="ps").start())   # 100ps
 
 # 等待事件
 await RisingEdge(dut.clk)      # 上升沿
@@ -267,6 +270,22 @@ make SIM=xsim          # Vivado 自带仿真器（需 Vivado 在 PATH 中）
 # 运行后：
 gtkwave dump.fst      # 用 GTKWave 打开波形
 ```
+
+### Q: 运行时有 `units 参数改名`、`MODULE deprecated` 之类的警告？
+
+cocotb 2.x 的 API 变化：`Clock(..., units=...)` 改名为 `unit=...`；Makefile 的 `MODULE` 改为 `COCOTB_TEST_MODULES`。**警告不影响结果**，但建议按新写法更新（本文档代码已更新）。
+
+### Q: 提示 `pytest not found`？
+
+可选优化。安装 pytest 后断言失败时会显示更详细的报错（哪个值、期望什么）：`pip install pytest`。
+
+### Q: 用 wsl.exe 从 Windows 侧创建 Makefile，`$(PWD)` 变成了空路径？（实测坑）
+
+通过 `wsl.exe -u 用户 -- bash -c '...'` 多层 shell 传参时，`$(PWD)`、`$(shell ...)` 会被中间层 shell **提前展开成空**，导致 Makefile 变成 `VERILOG_SOURCES = /counter.sv`、`include /Makefile.sim`，报 `No rule to make target`。
+
+**解法（二选一）**：
+- 直接在 WSL 终端里用 `vim`/`gedit` 等编辑器创建 Makefile（推荐，不会经过多层 shell）
+- 若必须从 Windows 侧写入：先把内容 **base64 编码**（不含 shell 特殊字符），再在 WSL 里 `echo '<编码>' | base64 -d > Makefile`
 
 ---
 
