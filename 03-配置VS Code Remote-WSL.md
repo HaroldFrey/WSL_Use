@@ -7,7 +7,7 @@
 
 ## 目录
 
-1. [Remote-WSL 是什么？（先理解再配置）](#1-remote-wsl-是什么先理解再配置)
+1. [Remote-WSL 是什么？](#1-remote-wsl-是什么先理解再配置)
 2. [安装 VS Code 扩展](#2-安装-vs-code-扩展)
 3. [从 WSL 终端打开 VS Code](#3-从-wsl-终端打开-vs-code)
 4. [如何确认你在 Remote 模式](#4-如何确认你在-remote-模式)
@@ -15,7 +15,7 @@
 
 ---
 
-## 1. Remote-WSL 是什么？（先理解再配置）
+## 1. Remote-WSL 是什么？
 
 **一句话**：让你的 **VS Code 界面在 Windows 上，但代码、终端、命令全跑在 WSL 里**。
 
@@ -51,9 +51,11 @@ Windows 桌面                        WSL 内部
 
 ## 2. 安装 VS Code 扩展
 
-在 Windows 的 VS Code 中安装扩展：**Remote - WSL**（发布者：Microsoft）。
+在 Windows 的 VS Code 中安装扩展：**WSL**（发布者：Microsoft，4000 万+ 下载量）。
 
-或按 `Ctrl+Shift+X` → 搜索 `Remote - WSL` → 安装。
+或按 `Ctrl+Shift+X` → 搜索 `WSL` → 安装。
+
+> 💡 **注意**：这个插件**旧名叫 "Remote - WSL"**，微软后来改名为 **"WSL"**——是同一个东西。搜索时可能看到旧名或新名，认准发布者是 **Microsoft** 即可。
 
 这个扩展会自动安装其他需要的 Remote 插件。
 
