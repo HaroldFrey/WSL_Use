@@ -150,34 +150,37 @@ ls ~/.claude/skills/             # 应列出全部 skill 目录
 
 **可以**。WSL 能直接调用 Windows 上的程序（原理见 [01 §5.2](01-WSL概述.md#52-程序互相调用)）。Vivado 本体继续在 Windows 上跑（综合/实现/烧录），WSL 负责调用它、编写和管理 TCL 脚本。
 
-### 8.2 本机 Vivado 位置（实测）
+### 8.2 本机 Vivado 版本与位置（实测）
 
-```
-D:\App_install_Lcoation\Vivado201704\Vivado\2017.4\bin\vivado.bat
-```
+| 版本 | 启动器命令 | 安装位置 |
+|------|-----------|----------|
+| **2017.4** | `vivado17` | `D:\App_install_Lcoation\Vivado201704\Vivado\2017.4\bin\vivado.bat` |
+| **2018.3** | `vivado18` | `D:\App_install_Lcoation\Vivado201803\Vivado\2018.3\bin\vivado.bat` |
+| **2019.2** | `vivado19` / `vivado`（默认） | `D:\App_install_Lcoation\Vivado201902\Vivado\2019.2\bin\vivado.bat` |
+
+> 本机装了 3 个版本（2017.4 / 2018.3 / 2019.2），在 WSL 里做了**启动器脚本**（`~/bin/vivado`、`~/bin/vivado17/18/19`），`~/bin` 已加入 PATH，开新终端即可直接用。
 
 ### 8.3 三种调用方式
 
 **① 启动 Vivado GUI**（在 Ubuntu 终端）：
 
 ```bash
-cmd.exe /c "D:\App_install_Lcoation\Vivado201704\Vivado\2017.4\bin\vivado.bat" &
+vivado19 &        # 或 vivado17 / vivado18 / vivado（默认 2019.2）
 ```
 
 **② 批处理模式**（跑 TCL 脚本，不开界面，适合自动化）：
 
 ```bash
-cmd.exe /c "D:\App_install_Lcoation\Vivado201704\Vivado\2017.4\bin\vivado.bat" -mode batch -source run.tcl
+vivado19 -mode batch -source run.tcl
 ```
 
 **③ 查版本**（快速验证通路）：
 
 ```bash
-cmd.exe /c "D:\App_install_Lcoation\Vivado201704\Vivado\2017.4\bin\vivado.bat" -version
-# 实测输出：Vivado v2017.4 (64-bit) ✅
+vivado17 -version   # Vivado v2017.4 (64-bit) ✅（三个版本均实测通过）
 ```
 
-> 💡 **嫌路径长？** 把 `D:\App_install_Lcoation\Vivado201704\Vivado\2017.4\bin` 加入 Windows 环境变量 PATH，之后在 WSL 里直接 `cmd.exe /c vivado -mode batch ...`。设置：Windows 搜索"编辑系统环境变量"→ 环境变量 → Path → 新增。
+> 💡 启动器脚本原理：一行 `exec cmd.exe /c "D:\...\vivado.bat" "$@"`——把参数原样传给 Windows 版 Vivado。想加更多版本，照葫芦画瓢复制脚本改路径即可。
 
 ### 8.4 路径转换（关键坑）
 
