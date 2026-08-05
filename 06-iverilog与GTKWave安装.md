@@ -124,18 +124,20 @@ vvp sim
 
 ## 6. 与 cocotb 配合
 
-cocotb 用 iverilog 作默认仿真器，生成波形的方法（见 [04 §7](04-cocotb使用指南.md#7-常见问题)）：
+cocotb 用 iverilog 作默认仿真器，生成波形的方法（**实测有效**）：
 
 ```makefile
 # Makefile 中加一行：
-COMPILE_ARGS += --trace
+WAVES=1
 ```
 
-运行 `make` 后生成 `dump.fst`，然后用 GTKWave 打开：
+运行 `make` 后生成波形文件 `sim_build/counter.fst`，然后用 GTKWave 打开：
 
 ```bash
-gtkwave dump.fst
+gtkwave sim_build/counter.fst
 ```
+
+> ⚠️ **实测修正**：`COMPILE_ARGS += --trace` 是 **Verilator** 的写法，iverilog 会报 `invalid option -- '-'`。iverilog + cocotb 请用 `WAVES=1`。
 
 **推荐流程**：cocotb 写断言验证功能 → GTKWave 看波形分析时序，两者互补。
 

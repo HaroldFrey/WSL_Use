@@ -264,12 +264,18 @@ make SIM=xsim          # Vivado 自带仿真器（需 Vivado 在 PATH 中）
 
 ### Q: 波形文件怎么生成？
 
-```bash
-# Makefile 中加：
-#   COMPILE_ARGS += --trace   (iverilog 生成 fst 波形)
-# 运行后：
-gtkwave dump.fst      # 用 GTKWave 打开波形
+```makefile
+# Makefile 中加（实测有效）：
+WAVES=1
 ```
+
+```bash
+# 运行后（实测）：
+ls sim_build/counter.fst          # 波形文件位置
+gtkwave sim_build/counter.fst     # 用 GTKWave 打开波形
+```
+
+> ⚠️ **实测修正**：网上常见的 `COMPILE_ARGS += --trace` 是 **Verilator** 的写法，iverilog 会报 `invalid option -- '-'`。iverilog + cocotb 请用 `WAVES=1`。
 
 ### Q: 运行时有 `units 参数改名`、`MODULE deprecated` 之类的警告？
 
