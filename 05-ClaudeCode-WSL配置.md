@@ -202,9 +202,32 @@ cmd.exe /c "D:\...\vivado.bat" -mode batch -source "$TCL_WIN"
 | 事项 | 说明 |
 |------|------|
 | GUI 窗口 | 弹出的是 **Windows 原生窗口**（不是 WSLg 窗口），正常 |
+| GUI 启动慢 | 2019.2 首次启动 30 秒~1 分钟才出窗口，属正常，耐心等 |
 | TCL 脚本 | 在 WSL 里写/管理（能用 Linux 工具链），再传给 Windows Vivado 执行 |
 | 文件访问 | 跨系统（/mnt/d）访问比原生慢，大工程建议把工程目录放 Windows 侧 |
-| Vivado 版本 | 按你实际安装的路径/版本调整（本机是 2017.4） |
+| Vivado 版本 | 本机 3 个版本：2017.4 / 2018.3 / 2019.2（`vivado17`/`vivado18`/`vivado19`） |
+
+### 8.6 Vivado 工程建在哪？（实测结论）
+
+**结论：工程建在 Windows 侧（D 盘），WSL 通过 `/mnt/d` 参与管理。**
+
+| 位置 | 可行性 | 原因 |
+|------|--------|------|
+| WSL 内部（`~/`） | ❌ 不行 | Vivado 拿到 UNC 路径（`\\wsl.localhost\...`）打不开工程（实测） |
+| **Windows D 盘** | ✅ **推荐** | Vivado 原生速度访问；WSL 通过 `/mnt/d` 同一目录可见 |
+
+**推荐结构**：
+
+```
+D:\FPGA_Self_Stduy\vivado_projects\
+    ├── project_a\
+    │   ├── project_a.xpr        ← Vivado 工程文件
+    │   ├── rtl\                 ← RTL 源码（Vivado 直接引用）
+    │   └── scripts\             ← TCL 脚本
+    └── project_b\
+```
+
+**工作流**：VS Code（WSL 窗口）打开 `/mnt/d/FPGA_Self_Stduy/vivado_projects/<工程>/` 写 RTL 和 TCL → git 版本管理 → `vivado19 -mode batch -source run.tcl` 交给 Windows Vivado 综合/实现/烧录。
 
 ---
 
